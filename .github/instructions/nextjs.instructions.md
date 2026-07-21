@@ -2,21 +2,21 @@
 ai_generated: true
 model: "openai/gpt-5.3-codex@unknown"
 operator: "johnmillerATcodemag-com"
-chat_id: "tech-inventory-prompts-20260720"
+chat_id: "execute-create-nextjs-instruction-file-20260721"
 prompt: |
   #file:create-nextjs-instruction-file.prompt.md
-started: "2026-07-20T00:00:00Z"
-ended: "2026-07-20T00:00:00Z"
+started: "2026-07-21T00:00:00Z"
+ended: "2026-07-21T00:00:00Z"
 task_durations:
   - task: "analyze repository scope and conventions"
     duration: "00:00:00"
   - task: "create nextjs instruction file"
     duration: "00:00:00"
 total_duration: "00:00:00"
-ai_log: "ai-logs/2026/07/20/tech-inventory-prompts-20260720/conversation.md"
+ai_log: "ai-logs/2026/07/21/execute-create-nextjs-instruction-file-20260721/conversation.md"
 source: ".github/prompts/create-nextjs-instruction-file.prompt.md"
 name: nextjs
-description: Practical guidance for using Next.js 16.2.10 in this codebase
+description: practical guidance for using Next.js 16.2.10 in this codebase
 applyTo: "src/app/**|next.config.ts"
 version: "1.0.0"
 author: "Development Team"

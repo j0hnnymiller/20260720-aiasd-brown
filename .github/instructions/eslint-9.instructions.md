@@ -2,25 +2,25 @@
 ai_generated: true
 model: "openai/gpt-5.3-codex@unknown"
 operator: "johnmillerATcodemag-com"
-chat_id: "tech-inventory-prompts-20260720"
+chat_id: "execute-create-eslint-9-instruction-file-20260721"
 prompt: |
-  #file:create-eslint-9-instruction-file.prompt.md
-started: "2026-07-20T00:00:00Z"
-ended: "2026-07-20T00:00:00Z"
+  Execute the prompt file at c:\git\AIASD\20260720-aiasd-brown\.github\prompts\create-eslint-9-instruction-file.prompt.md.
+started: "2026-07-21T00:00:00Z"
+ended: "2026-07-21T00:00:00Z"
 task_durations:
-  - task: "analyze repository scope and conventions"
+  - task: "read prompt and conventions"
     duration: "00:00:00"
-  - task: "create eslint 9 instruction file"
+  - task: "author eslint instruction file"
     duration: "00:00:00"
 total_duration: "00:00:00"
-ai_log: "ai-logs/2026/07/20/tech-inventory-prompts-20260720/conversation.md"
+ai_log: "ai-logs/2026/07/21/execute-create-eslint-9-instruction-file-20260721/conversation.md"
 source: ".github/prompts/create-eslint-9-instruction-file.prompt.md"
 name: eslint-9
 description: Practical guidance for using ESLint 9 in this codebase
 applyTo: "eslint.config.mjs|package.json"
 version: "1.0.0"
 author: "Development Team"
-tags: ["eslint", "nextjs", "typescript"]
+tags: ["eslint", "linting", "nextjs", "typescript"]
 owner: "Development Team"
 reviewedDate: "2026-07-21"
 nextReview: "2026-10-21"
@@ -30,49 +30,44 @@ nextReview: "2026-10-21"
 
 ## Overview
 
-Use ESLint 9 as the primary static quality gate for this Next.js App Router and TypeScript strict project. Keep lint rules aligned with the current repository scope: one App Router route shell in `src/app/**` and interactive logic in `src/components/Calculator.tsx`.
-
-- Keep lint behavior deterministic across local and CI runs.
-- Favor rules that prevent real defects over cosmetic churn.
-- Enforce consistency with Next.js core web vitals and TypeScript-safe patterns.
+Use ESLint 9 to enforce consistent, maintainable quality gates for this Next.js App Router and TypeScript codebase. Keep linting focused on correctness, readability, and framework-safe patterns, and avoid adding rules that are not exercised by current project scope.
 
 ## Standards
 
-- Keep `eslint.config.mjs` in Flat Config format compatible with ESLint 9.
-- Preserve integration with Next.js linting (`eslint-config-next`) and do not replace it with incompatible legacy presets.
-- Ensure `package.json` lint scripts invoke ESLint directly against intended source paths and fail on actionable issues.
-- Treat TypeScript strictness as a baseline: avoid patterns that bypass type safety (`any`, unchecked assertions, ignored diagnostics).
-- Scope rule changes to verified project needs; avoid broad rule toggles without a concrete issue.
-- Prefer warnings for exploratory guidance and errors for correctness, safety, or CI-blocking requirements.
+- Keep ESLint configuration centralized in `eslint.config.mjs` using the flat config format required by ESLint 9.
+- Align lint rules with Next.js App Router defaults before adding custom overrides.
+- Treat TypeScript strictness as a source of truth and avoid lint settings that conflict with strict compiler checks.
+- Keep rule severity intentional:
+  - Use `error` for issues that can cause runtime bugs, unsafe behavior, or invalid framework usage.
+  - Use `warn` for style or maintainability guidance that should not block iteration.
+- Add rule overrides only for concrete repository needs; include a short rationale comment near non-obvious exceptions.
+- Keep dependencies in `package.json` consistent with ESLint 9-compatible plugin and config versions.
+- Prefer deterministic lint runs in CI and local development by using explicit scripts rather than ad hoc commands.
 
 ## Patterns
 
-- Flat config composition:
-  - Start from Next.js-provided config layers.
-  - Add only minimal repository-specific overrides.
-- Rule targeting:
-  - Use file-pattern overrides when rules differ between config files and application code.
-  - Keep overrides narrow so `src/app/**` and `src/components/**` remain consistently enforced.
-- Script hygiene in `package.json`:
-  - Keep a single canonical lint script and avoid duplicate lint entry points with conflicting flags.
-  - Pair lint scripts with fix scripts only when safe autofixes are expected.
-- TypeScript-aware linting:
-  - Keep parser and plugin settings compatible with current TypeScript and Next.js versions.
-  - Prefer explicit exceptions with comments over disabling rules globally.
+- Prefer script conventions in `package.json` that separate check and fix flows:
+  - `lint`: run diagnostics only.
+  - `lint:fix`: apply safe automatic fixes.
+- Keep lint coverage scoped to active source and config files used by this repository.
+- Use targeted disable comments only when necessary and always scope them to the smallest line or block.
+- Keep Next.js and TypeScript plugin settings explicit where project behavior depends on them.
+- Revisit custom rule decisions when framework or language versions change.
 
 ## Validation Checklist
 
-- `eslint.config.mjs` remains ESLint 9 Flat Config compliant.
-- `package.json` contains clear, maintainable lint commands for local and CI usage.
-- Next.js core web vitals lint coverage is preserved.
-- No new rule disables were added without a documented, file-scoped reason.
-- Lint output is actionable and free of noisy or redundant rules.
-- Changes align with current repository scope and TypeScript strict expectations.
+- `eslint.config.mjs` uses ESLint 9 flat config patterns.
+- `package.json` has lint scripts that are clear and reproducible.
+- Custom rules or overrides are minimal and justified.
+- Lint configuration supports Next.js App Router conventions.
+- Lint configuration complements TypeScript strictness instead of duplicating or contradicting it.
+- Linting runs successfully on current repository files.
 
 ## Common Pitfalls
 
-- Mixing legacy `.eslintrc*` assumptions into ESLint 9 Flat Config setup.
-- Adding overlapping rule sets that duplicate or conflict with Next.js defaults.
-- Using broad ignore patterns that hide real issues in `src/app/**` or `src/components/**`.
-- Downgrading strict rules to silence errors instead of fixing root causes.
-- Introducing lint scripts that behave differently between developer machines and CI.
+- Mixing legacy ESLint config formats with ESLint 9 flat config.
+- Adding broad rule disables instead of fixing root causes.
+- Enabling speculative rules that do not map to active project code paths.
+- Introducing plugin versions that are not compatible with ESLint 9.
+- Treating all lint findings as equal severity, which reduces signal quality.
+- Letting lint scripts drift from actual repository structure or Next.js conventions.

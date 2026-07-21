@@ -2,21 +2,21 @@
 ai_generated: true
 model: "openai/gpt-5.3-codex@unknown"
 operator: "johnmillerATcodemag-com"
-chat_id: "tech-inventory-prompts-20260720"
+chat_id: "execute-create-eslint-config-next-instruction-file-20260721"
 prompt: |
-  for each technology in the inventory create a prompt file that creates an instruction file for that technology.
-started: "2026-07-20T00:00:00Z"
-ended: "2026-07-20T00:00:00Z"
+  Execute the prompt file at c:\git\AIASD\20260720-aiasd-brown\.github\prompts\create-eslint-config-next-instruction-file.prompt.md.
+started: "2026-07-21T00:00:00Z"
+ended: "2026-07-21T00:00:00Z"
 task_durations:
-  - task: "inventory-to-prompt mapping"
+  - task: "read prompt and repository conventions"
+    duration: "00:05:00"
+  - task: "author eslint-config-next instruction file"
     duration: "00:10:00"
-  - task: "prompt file generation"
-    duration: "00:20:00"
-total_duration: "00:30:00"
-ai_log: "ai-logs/2026/07/20/tech-inventory-prompts-20260720/conversation.md"
+total_duration: "00:15:00"
+ai_log: "ai-logs/2026/07/21/execute-create-eslint-config-next-instruction-file-20260721/conversation.md"
 source: ".github/prompts/create-eslint-config-next-instruction-file.prompt.md"
 name: eslint-config-next
-description: Practical guidance for using eslint-config-next in this codebase
+description: Practical guidance for using eslint-config-next in this codebase.
 applyTo: "eslint.config.mjs"
 version: "1.0.0"
 author: "Development Team"
@@ -30,49 +30,55 @@ nextReview: "2026-10-21"
 
 ## Overview
 
-Use `eslint-config-next` as the baseline lint policy for this repository's Next.js App Router and TypeScript workflow.
+Use `eslint-config-next` as the baseline for linting in this repository.
 
-- Keep the config focused on correctness and maintainability, not stylistic churn.
-- Prefer rule changes that prevent real defects or unsafe patterns.
-- Align lint behavior with the current project scope in `src/app/**` and `src/components/**`.
+- Keep configuration in `eslint.config.mjs` only.
+- Preserve compatibility with Next.js App Router conventions under `src/app`.
+- Keep TypeScript linting enabled through the `eslint-config-next/typescript` preset.
+- Prefer minimal, explicit overrides over broad custom rule sets.
 
 ## Standards
 
-- Extend `eslint-config-next` as the primary rule source for Next.js and React guidance.
-- Preserve compatibility with TypeScript strictness configured in the repository.
-- Keep lint rules deterministic across local and CI runs.
-- Add overrides only when there is a concrete false positive or project-specific requirement.
-- Document non-default rule changes inline in `eslint.config.mjs` with a short rationale.
-- Prefer warnings first for new non-critical rules, then promote to errors after validation.
+- Use flat config with `defineConfig` from `eslint/config`.
+- Include `eslint-config-next/core-web-vitals` for Next.js performance and correctness checks.
+- Include `eslint-config-next/typescript` to align linting with strict TypeScript usage.
+- Keep ignore patterns explicit and limited to generated artifacts.
+- Do not disable rules globally unless there is a documented project-specific need.
+- When adding overrides, scope them by file pattern and keep rule changes narrow.
 
 ## Patterns
 
-- Baseline composition:
-  - Start from `eslint-config-next` defaults.
-  - Layer minimal repository-specific adjustments after defaults.
-- Rule tuning:
-  - Tighten rules that protect runtime behavior (`no-unused-vars`, `no-unreachable`, React hook correctness).
-  - Avoid disabling broad rule sets; scope exceptions to specific files when needed.
-- File targeting:
-  - Keep app/router rules applicable to `src/app/**`.
-  - Keep component-level lint behavior consistent in `src/components/**`.
-- Suppression hygiene:
-  - Use single-line disables with explicit reason comments.
-  - Remove stale suppressions during adjacent edits.
+- Start with preset spreads, then append local adjustments.
+- Keep ignore definitions centralized via `globalIgnores`.
+- Document any non-default rule in-place with one short rationale comment.
+- Prefer fixing code to satisfy rules instead of relaxing rules.
+
+Recommended structure:
+
+```mjs
+import { defineConfig, globalIgnores } from "eslint/config";
+import nextVitals from "eslint-config-next/core-web-vitals";
+import nextTs from "eslint-config-next/typescript";
+
+export default defineConfig([
+  ...nextVitals,
+  ...nextTs,
+  globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts"]),
+]);
+```
 
 ## Validation Checklist
 
-- `eslint.config.mjs` continues to extend `eslint-config-next` as the base.
-- New rules are justified by an actual issue, not preference alone.
-- Overrides are narrowly scoped and avoid weakening unrelated files.
-- TypeScript and Next.js App Router files lint cleanly under current config.
-- Any lint suppression includes a reason and the narrowest possible scope.
-- Configuration changes are verified with local lint execution before merge.
+- `eslint.config.mjs` imports both `core-web-vitals` and `typescript` presets.
+- Ignore patterns only target build artifacts and generated files.
+- No broad `off` switches for core safety or correctness rules.
+- Lint runs cleanly with repository scripts before merging.
+- Any custom rule change has a clear, local rationale.
 
 ## Common Pitfalls
 
-- Replacing `eslint-config-next` defaults with large custom rule blocks.
-- Introducing conflicting rules that duplicate or fight framework defaults.
-- Using global disables instead of targeted file or line exceptions.
-- Promoting many new rules to errors at once, creating noisy and low-signal failures.
-- Keeping legacy suppressions that no longer match current code.
+- Replacing presets with hand-written rule bundles that drift from Next.js defaults.
+- Disabling noisy rules globally instead of addressing the underlying code issue.
+- Expanding ignores to hide lint findings in source files.
+- Adding config complexity for one-off cases that should be solved in code.
+- Introducing framework-agnostic rule packs that conflict with Next.js App Router behavior.

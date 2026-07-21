@@ -2,78 +2,85 @@
 ai_generated: true
 model: "openai/gpt-5.3-codex@unknown"
 operator: "johnmillerATcodemag-com"
-chat_id: "create-react-state-hooks-instruction-file-20260721"
+chat_id: "execute-create-react-state-hooks-instruction-file-20260721"
 prompt: |
   #file:create-react-state-hooks-instruction-file.prompt.md
 started: "2026-07-21T00:00:00Z"
 ended: "2026-07-21T00:00:00Z"
 task_durations:
-  - task: "analyze repository scope and conventions"
+  - task: "analyze prompt and repository conventions"
     duration: "00:00:00"
   - task: "create react state hooks instruction file"
     duration: "00:00:00"
 total_duration: "00:00:00"
-ai_log: "ai-logs/2026/07/21/create-react-state-hooks-instruction-file-20260721/conversation.md"
+ai_log: "ai-logs/2026/07/21/execute-create-react-state-hooks-instruction-file-20260721/conversation.md"
 source: ".github/prompts/create-react-state-hooks-instruction-file.prompt.md"
 name: react-state-hooks
-description: Practical guidance for using React state hooks in this codebase
+description: practical guidance for using React state hooks in this codebase
 applyTo: "src/components/**/*.tsx|src/app/**/*.tsx"
 version: "1.0.0"
 author: "Development Team"
-tags: ["react", "state", "hooks", "typescript", "nextjs"]
+tags: ["react", "hooks", "state", "nextjs", "typescript"]
 owner: "Development Team"
 reviewedDate: "2026-07-21"
 nextReview: "2026-10-21"
 ---
 
-# React State Hooks
+# React state hooks
 
 ## Overview
 
-Use React state hooks to keep interactive behavior predictable and local to the smallest practical component boundary.
+Use React state hooks to keep component state local, explicit, and type-safe within this Next.js App Router project.
 
-- Prefer Server Components by default in App Router and only opt into Client Components when hooks are required.
-- Place hook-driven UI behavior in `src/components/**` unless the state is route-shell specific.
-- Keep state models simple, explicit, and typed to match TypeScript strictness.
+- Default to local state in client components for UI behavior and transient interaction data.
+- Keep route files under `src/app/**` server-first, and only opt into client behavior where browser interactivity is required.
+- Preserve strict TypeScript safety for all state values and state transitions.
 
 ## Standards
 
-- Add `"use client"` at the top of any file that uses `useState`, `useReducer`, `useEffect`, `useMemo`, or `useCallback`.
-- Use explicit state types when inference is ambiguous, especially for nullable or union state.
-- Treat state as immutable: replace objects and arrays instead of mutating existing references.
-- Keep derived values computed from source state using memoization only when there is measured or clear render-cost benefit.
-- Keep event handlers side-effect aware: update state first, then trigger follow-up effects through clear control flow.
-- Avoid `any` for state and dispatch; define narrow types for safer updates.
+- Add `"use client"` to any file that uses `useState`, `useReducer`, `useRef`, or `useEffect`.
+- Use explicit state types when inference is ambiguous, nullable, or union-based.
+- Prefer immutable updates and functional state setters when next state depends on previous state.
+- Keep state as small as possible; store derived values in expressions or memoized selectors instead of duplicating source state.
+- Group related transitions in `useReducer` when multiple fields change together or state logic becomes branch-heavy.
+- Avoid non-null assertions and broad type assertions in state reads and updates.
 
 ## Patterns
 
-- Local scalar state:
-  - Use `useState` for primitive UI controls (text, toggles, selected option).
-- Structured or multi-step state:
-  - Use `useReducer` when transitions are non-trivial, and model actions as discriminated unions.
-- State initialization:
-  - Use lazy initializers (`useState(() => initialValue)`) for expensive setup.
-- Derived state:
-  - Compute from existing state/props instead of storing duplicate values.
-- Handler stability:
-  - Use `useCallback` only when callback identity impacts child memoization or effect dependencies.
-- Route alignment:
-  - Keep page-level shell state in `src/app/**/*.tsx` only when it is specific to that route segment.
+### Local UI state
+
+- Use `useState` for simple, component-scoped values such as input text, toggles, and computed display output.
+- Co-locate state near the component that owns it to reduce prop drilling and accidental coupling.
+
+### Derived state
+
+- Compute derived values from canonical state during render when cheap and deterministic.
+- Use memoization only when profiling or known re-render costs justify it.
+
+### Transition-heavy state
+
+- Use `useReducer` for finite transition flows (for example, multi-step input handling).
+- Define discriminated union action types to keep reducer branches exhaustive and strict-safe.
+
+### Side effects tied to state
+
+- Use `useEffect` only for external side effects (browser APIs, subscriptions, timers).
+- Keep dependency arrays accurate and stable; cleanup all listeners or timers in the return function.
 
 ## Validation Checklist
 
-- Files using hooks are explicitly Client Components with `"use client"`.
-- State updates are immutable and type-safe under strict TypeScript rules.
-- No duplicated source-of-truth state was introduced.
-- Reducer actions and state shapes are strongly typed and exhaustively handled.
-- Hook dependency arrays are accurate and do not suppress real dependencies.
-- Interactive behavior remains confined to client boundaries without leaking into server-only code.
+- Files using React state hooks are marked as client components.
+- State types are explicit where inference is not obviously safe.
+- State updates use immutable patterns and functional setters where needed.
+- Derived values are not duplicated as writable state without a clear reason.
+- Complex transition logic uses `useReducer` with typed actions.
+- Effects include correct dependencies and cleanup for subscribed resources.
+- Changes remain aligned with current single-feature project scope and pass TypeScript strict checks.
 
 ## Common Pitfalls
 
-- Using hooks in Server Components or forgetting `"use client"`.
-- Storing derived values in state, which causes drift and unnecessary sync logic.
-- Mutating arrays/objects in place and expecting React to re-render.
-- Overusing `useMemo`/`useCallback` for unmeasured micro-optimizations.
-- Using broad state objects when a reducer or smaller state slices would be clearer.
-- Ignoring strict null checks when state can be uninitialized or transient.
+- Storing duplicated derived values that can drift out of sync.
+- Mutating objects or arrays in state updates.
+- Capturing stale values in closures because dependencies are incomplete.
+- Expanding local hook state into global patterns without a real cross-route requirement.
+- Using `any`, forced casts, or non-null assertions to bypass strict typing.

@@ -2,25 +2,26 @@
 ai_generated: true
 model: "openai/gpt-5.3-codex@unknown"
 operator: "johnmillerATcodemag-com"
-chat_id: "tech-inventory-prompts-20260720"
+chat_id: "execute-create-next-build-instruction-file-20260721"
 prompt: |
-  for each technology in the inventory create a prompt file that creates an instruction file for that technology.
-started: "2026-07-20T00:00:00Z"
-ended: "2026-07-20T00:00:00Z"
+  Execute the prompt file at c:\git\AIASD\20260720-aiasd-brown\.github\prompts\create-next-build-instruction-file.prompt.md.
+  Read the prompt and produce exactly the requested technology-specific instruction file(s) in this repository.
+started: "2026-07-21T00:00:00Z"
+ended: "2026-07-21T00:00:00Z"
 task_durations:
-  - task: "inventory-to-prompt mapping"
-    duration: "00:10:00"
-  - task: "prompt file generation"
-    duration: "00:20:00"
-total_duration: "00:30:00"
-ai_log: "ai-logs/2026/07/20/tech-inventory-prompts-20260720/conversation.md"
+  - task: "read prompt and conventions"
+    duration: "00:00:00"
+  - task: "create next build instruction file"
+    duration: "00:00:00"
+total_duration: "00:00:00"
+ai_log: "ai-logs/2026/07/21/execute-create-next-build-instruction-file-20260721/conversation.md"
 source: ".github/prompts/create-next-build-instruction-file.prompt.md"
 name: next-build
 description: Practical guidance for using next build in this codebase
 applyTo: "package.json|README.md|next.config.ts"
 version: "1.0.0"
 author: "Development Team"
-tags: ["nextjs", "build", "tooling"]
+tags: ["nextjs", "build", "typescript", "app-router"]
 owner: "Development Team"
 reviewedDate: "2026-07-21"
 nextReview: "2026-10-21"
@@ -30,48 +31,44 @@ nextReview: "2026-10-21"
 
 ## Overview
 
-Use `next build` to produce a deterministic production build for this repository's Next.js App Router project (`src/app/**`) with TypeScript strictness and current ESLint conventions.
+Use `next build` as the production validation gate for this repository. Keep build behavior aligned with the current Next.js App Router architecture, strict TypeScript settings, and the project's single-app scope.
 
-- Keep build behavior aligned with the current repository scope: a small App Router app with one primary route and a client calculator component.
-- Treat build configuration as production-critical: prefer default Next.js behavior and only add options to `next.config.ts` for verified needs.
-- Ensure changes touching build scripts or runtime configuration remain consistent across `package.json`, `README.md`, and `next.config.ts`.
+- Treat build success as a release requirement, not an optional local check.
+- Keep build-impacting changes minimal and explicit in `package.json`, `README.md`, and `next.config.ts`.
+- Prefer defaults unless a documented project need requires custom build behavior.
 
 ## Standards
 
-- Keep `package.json` build script canonical as `next build` unless there is a documented, testable reason to add flags or wrappers.
-- Keep `next.config.ts` minimal, explicit, and compatible with the installed Next.js version.
-- Preserve TypeScript strict-safe patterns so production builds do not rely on unsafe casts or implicit nullable behavior.
-- Keep documentation in `README.md` accurate for local and CI build commands.
-- Prefer reproducible builds: avoid environment-specific assumptions in scripts, config, or docs.
+- Keep the `build` script in `package.json` as `next build` unless there is a verified and documented reason to change it.
+- Preserve strict TypeScript compatibility; do not relax checks to force a green build.
+- Keep `next.config.ts` small and intentional. Add options only when they solve a real build/runtime requirement.
+- Document any build command, prerequisite, or environment expectation changes in `README.md`.
+- Do not introduce build-time workarounds that mask lint or type issues.
 
 ## Patterns
 
 - Script pattern:
-  - Use `"build": "next build"` in `package.json`.
-  - Keep related scripts (`dev`, `start`, `lint`) consistent with the documented workflow.
+  - Use a direct build command (`next build`) for predictable CI and local parity.
+  - Keep script naming conventional (`dev`, `build`, `start`, `lint`) to match Next.js tooling expectations.
 - Configuration pattern:
-  - Start with no custom config; add only narrowly scoped options in `next.config.ts`.
-  - Co-locate rationale in PR context when adding build-affecting options.
-- Documentation pattern:
-  - Document production build and run flow in `README.md` using the same commands defined in `package.json`.
-  - Update docs in the same change when scripts or config change.
-- Validation pattern:
-  - Run `npm run build` after modifying `package.json`, `next.config.ts`, or build instructions.
-  - Confirm the build completes without introducing new lint/type regressions.
+  - Start with framework defaults.
+  - Add config one setting at a time, with a short rationale in PR notes and matching README updates when user-facing.
+- Scope pattern:
+  - Keep build guidance focused on this repository's current App Router setup under `src/app/**`.
+  - Avoid adding multi-app, monorepo, or deployment-specific complexity unless the repository scope changes.
 
 ## Validation Checklist
 
-- `package.json` contains a valid `build` script using `next build`.
-- `README.md` build instructions match the actual npm scripts.
-- `next.config.ts` changes are necessary, minimal, and compatible with current Next.js usage.
-- Production build completes locally with `npm run build`.
-- No new strict typing or linting issues are introduced by build-related changes.
-- Any deviation from default build behavior is explicitly justified.
+- `npm run build` completes successfully with no new type regressions.
+- `package.json` scripts remain clear, minimal, and compatible with Next.js defaults.
+- `next.config.ts` changes are necessary, reviewed, and limited to current project needs.
+- `README.md` reflects any build command or prerequisite changes.
+- No rule or config was added solely to suppress build, lint, or type failures.
 
 ## Common Pitfalls
 
-- Adding custom build flags or wrappers in `package.json` without a verified requirement.
-- Letting `README.md` drift from the real build command.
-- Using `next.config.ts` for speculative optimizations that increase maintenance risk.
-- Introducing environment-dependent behavior that breaks reproducible CI or local builds.
-- Treating successful `next dev` as sufficient proof that production `next build` is healthy.
+- Changing the `build` script to bypass `next build` behavior without a validated reason.
+- Disabling strictness or weakening checks to avoid fixing underlying TypeScript issues.
+- Accumulating unrelated `next.config.ts` options that increase maintenance cost.
+- Forgetting to update `README.md` after changing build expectations.
+- Optimizing for hypothetical future architecture instead of current repository scope.

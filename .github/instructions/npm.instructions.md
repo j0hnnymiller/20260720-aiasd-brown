@@ -2,7 +2,7 @@
 ai_generated: true
 model: "openai/gpt-5.3-codex@unknown"
 operator: "johnmillerATcodemag-com"
-chat_id: "create-npm-instruction-file-20260721"
+chat_id: "execute-create-npm-instruction-file-20260721"
 prompt: |
   #file:create-npm-instruction-file.prompt.md
 started: "2026-07-21T00:00:00Z"
@@ -13,10 +13,10 @@ task_durations:
   - task: "create npm instruction file"
     duration: "00:00:00"
 total_duration: "00:00:00"
-ai_log: "ai-logs/2026/07/21/create-npm-instruction-file-20260721/conversation.md"
+ai_log: "ai-logs/2026/07/21/execute-create-npm-instruction-file-20260721/conversation.md"
 source: ".github/prompts/create-npm-instruction-file.prompt.md"
 name: npm
-description: Practical guidance for using npm in this codebase
+description: practical guidance for using npm in this codebase
 applyTo: "package.json|package-lock.json"
 version: "1.0.0"
 author: "Development Team"
@@ -30,45 +30,49 @@ nextReview: "2026-10-21"
 
 ## Overview
 
-Use npm as the single package manager for this repository and keep dependency decisions aligned with the current Next.js App Router and TypeScript-strict setup.
+Use npm as the single package manager for this repository and keep dependency decisions aligned with the current stack: Next.js App Router, TypeScript strict mode, React 19, and ESLint 9.
 
-- Treat `package-lock.json` as the source of truth for reproducible installs.
-- Keep runtime dependencies minimal and explicit for the current app scope.
-- Prefer stable package versions and intentional upgrades over frequent churn.
+- Commit dependency changes intentionally and keep lockfile state deterministic.
+- Prefer the smallest dependency surface that solves the current requirement.
+- Keep scripts focused on the existing lifecycle (`dev`, `build`, `start`, `lint`).
 
 ## Standards
 
-- Use npm commands consistently (`npm install`, `npm uninstall`, `npm run <script>`).
-- Commit `package-lock.json` changes with related `package.json` updates in the same change.
-- Add dependencies to `dependencies` only when required at runtime; otherwise use `devDependencies`.
-- Keep scripts focused and descriptive (`dev`, `build`, `start`, `lint`) and avoid redundant aliases.
-- Do not bypass TypeScript strictness with tooling that hides type or lint failures.
-- Prefer official Next.js and TypeScript ecosystem packages unless a clear project need requires alternatives.
+- Use `npm` commands for all package operations in this repo.
+- Keep `package.json` scripts simple and explicit; avoid shell-specific logic in scripts.
+- Pin framework-coupled packages to known-compatible versions (for example `next` with matching `eslint-config-next`).
+- Keep TypeScript and React type packages aligned with major runtime versions.
+- Add new dependencies only when native platform or existing packages cannot satisfy the need.
+- Prefer dev dependencies for build-time, lint, test, and typing tools.
+- Preserve a clean separation between `dependencies` (runtime) and `devDependencies` (development-time).
 
 ## Patterns
 
-- Dependency changes:
-  - Add one package change at a time when practical.
-  - Validate impact with `npm run lint` and `npm run build` after dependency updates.
-- Version management:
-  - Use semver-aware ranges intentionally.
-  - Pin exact versions only when reproducibility or known compatibility issues require it.
-- Script design:
-  - Keep scripts cross-environment friendly and free of machine-specific assumptions.
-  - Use npm lifecycle scripts only when they provide clear value and predictable behavior.
+- Dependency updates:
+  - Use targeted installs for incremental upgrades.
+  - Validate `npm run lint` and `npm run build` after version changes.
+- Script conventions:
+  - `dev` for local development.
+  - `build` for production compilation.
+  - `start` for production runtime.
+  - `lint` for static quality checks.
+- Lockfile management:
+  - Commit `package-lock.json` with any dependency change.
+  - Avoid manual lockfile edits.
 
 ## Validation Checklist
 
-- `package.json` and `package-lock.json` are both updated when dependencies change.
-- New packages are categorized correctly as runtime or development dependencies.
-- Script changes are necessary, named clearly, and remain aligned with project workflow.
-- Lint and build commands succeed after dependency or script updates.
-- No unused, duplicate, or overlapping dependencies were introduced.
+- `package.json` remains valid JSON and scripts still match repository workflows.
+- `dependencies` and `devDependencies` classification is correct.
+- Added package versions are compatible with Next.js 16.2.10 and TypeScript strict usage.
+- `package-lock.json` is updated and committed with dependency changes.
+- `npm run lint` passes after package changes.
+- `npm run build` succeeds after package changes.
 
 ## Common Pitfalls
 
-- Updating `package.json` without committing the corresponding lockfile changes.
-- Adding runtime dependencies for build-time or lint-only tooling.
-- Introducing multiple tools that solve the same problem (for example overlapping formatters or linters).
-- Using broad version ranges without validating compatibility in the current Next.js and TypeScript setup.
-- Adding scripts that encode local-only paths, shell assumptions, or one-off developer behavior.
+- Mixing package managers (for example using pnpm or yarn artifacts in this repo).
+- Adding broad utility dependencies for small problems that can be solved locally.
+- Upgrading `next` or React-related packages without validating compatibility together.
+- Placing runtime-required packages in `devDependencies`.
+- Editing `package-lock.json` manually instead of letting npm regenerate it.

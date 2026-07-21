@@ -2,30 +2,21 @@
 ai_generated: true
 model: "openai/gpt-5.3-codex@unknown"
 operator: "johnmillerATcodemag-com"
-chat_id: "create-typescript-instruction-file-20260721"
+chat_id: "execute-create-typescript-instruction-file-20260721"
 prompt: |
-  Create or update .github/instructions/typescript.instructions.md as a complete markdown instruction file with YAML front matter.
-
-  Requirements:
-  - Set name to the technology name.
-  - Set description to practical guidance for using TypeScript 5 in this codebase.
-  - Set applyTo to: src/**/*.ts|src/**/*.tsx|tsconfig.json.
-  - Keep guidance actionable, concise, and maintainable.
-  - Include sections for Overview, Standards, Patterns, Validation Checklist, and Common Pitfalls.
-  - Prioritize repository alignment with Next.js App Router, TypeScript strictness, and current project scope.
-  - Avoid speculative or unverified claims.
+  #file:create-typescript-instruction-file.prompt.md
 started: "2026-07-21T00:00:00Z"
 ended: "2026-07-21T00:00:00Z"
 task_durations:
-  - task: "analyze repository conventions"
+  - task: "analyze repository scope and conventions"
     duration: "00:00:00"
   - task: "create typescript instruction file"
     duration: "00:00:00"
 total_duration: "00:00:00"
-ai_log: "ai-logs/2026/07/21/create-typescript-instruction-file-20260721/conversation.md"
+ai_log: "ai-logs/2026/07/21/execute-create-typescript-instruction-file-20260721/conversation.md"
 source: ".github/prompts/create-typescript-instruction-file.prompt.md"
 name: typescript
-description: Practical guidance for using TypeScript 5 in this codebase
+description: practical guidance for using TypeScript 5 in this codebase
 applyTo: "src/**/*.ts|src/**/*.tsx|tsconfig.json"
 version: "1.0.0"
 author: "Development Team"
@@ -39,50 +30,49 @@ nextReview: "2026-10-21"
 
 ## Overview
 
-Use TypeScript as the primary guardrail for correctness across the current Next.js App Router codebase.
+Use TypeScript to make Next.js App Router code explicit, strict, and easy to change. Keep route shell concerns in `src/app/**` and interactive logic in focused client components such as `src/components/Calculator.tsx`.
 
-- Keep application code under `src/**` and preserve the existing `@/*` path alias.
-- Treat strict typing as the default contract: model data explicitly, narrow unknown values, and fail early on invalid states.
-- Align TypeScript usage with the current project scope (App Router pages/layouts and reusable React components).
+- Prefer narrow, descriptive types over broad utility types.
+- Keep data flow and component props statically verifiable.
+- Make nullability and error states explicit in types.
 
 ## Standards
 
-- Keep strict mode enabled in `tsconfig.json` and avoid weakening checks to bypass compile errors.
-- Prefer explicit, descriptive types for component props, return values, and shared utility functions.
-- Avoid `any`; use `unknown` plus runtime narrowing when input shape is uncertain.
-- Prefer union types and discriminated unions over boolean flag combinations for multi-state logic.
-- Keep nullability intentional: represent optional values explicitly and handle `undefined`/`null` at boundaries.
-- Use `readonly` where mutation is not required, especially for configuration-like objects and props.
-- Do not suppress type errors with broad assertions (`as any`, non-null assertions) unless no safer option exists and the invariant is local and obvious.
+- Keep strict mode assumptions intact. Do not weaken checks in `tsconfig.json` without a concrete project requirement.
+- Avoid `any`. Use `unknown` plus type narrowing when input shape is uncertain.
+- Avoid non-null assertions (`!`) unless a runtime guard in the same scope proves safety.
+- Model component props with explicit interfaces or type aliases; keep optional fields intentional.
+- Keep module boundaries clear: route and layout types in `src/app/**`, reusable UI types near `src/components/**`.
+- Prefer typed return values for exported functions and shared utilities when inference would hide contract drift.
 
 ## Patterns
 
-- Component props:
-  - Define a dedicated `Props` type per component.
-  - Keep prop surfaces minimal and domain-oriented.
-- State and events in client components:
-  - Type `useState` values explicitly when inference is ambiguous.
-  - Use precise event types in handlers (`React.ChangeEvent<HTMLInputElement>`, etc.).
-- App Router boundaries:
-  - Keep route/layout modules focused on routing and composition.
-  - Move interactive logic into typed client components.
-- Reusable domain types:
-  - Centralize truly shared types in stable modules under `src/**`.
-  - Avoid creating global type barrels unless multiple consumers justify them.
+- React component typing:
+  - Type props with small, focused interfaces.
+  - Keep derived values typed through `const` inference and discriminated unions where state branches differ.
+- Event and input handling:
+  - Use React event types (`React.ChangeEvent<HTMLInputElement>`, `React.MouseEvent<HTMLButtonElement>`) for handlers.
+  - Convert and validate user input at boundaries before state updates.
+- State modeling:
+  - Represent finite UI states with union types instead of boolean combinations.
+  - Encode parse or validation failures in typed state, not implicit sentinel values.
+- Project structure:
+  - Keep shared type-only exports stable and local to the feature until true reuse appears.
+  - Use the existing path alias pattern consistently when importing across `src/**`.
 
 ## Validation Checklist
 
-- Type checking passes with no new errors under the existing project configuration.
-- No new `any` types were introduced without strong justification.
-- Public component and utility APIs are explicitly typed and readable.
-- Nullable and optional paths are handled intentionally.
-- App Router files remain focused on route concerns, with client interactivity isolated to client components.
-- `tsconfig.json` changes (if any) are minimal, deliberate, and compatible with repository standards.
+- `tsconfig.json` remains strict-oriented with no unnecessary relaxations.
+- New or changed code in `src/**/*.ts` and `src/**/*.tsx` compiles without type errors.
+- No new `any` usage unless clearly justified and isolated.
+- Nullable and optional values are guarded before use.
+- Client component event handlers and props are explicitly typed where inference is ambiguous.
+- Type changes preserve current calculator behavior and existing route/component boundaries.
 
 ## Common Pitfalls
 
-- Using broad type assertions to silence errors instead of fixing data flow or narrowing logic.
-- Allowing inferred `any` to spread from loosely typed helpers into component code.
-- Encoding complex UI state with many booleans instead of a discriminated union.
-- Mixing route composition and heavy client-side logic in the same App Router module.
-- Relaxing `tsconfig.json` strictness to accommodate one-off implementation shortcuts.
+- Using `as` casts to bypass real typing problems instead of refining types.
+- Expanding shared types too early, creating coupling across unrelated components.
+- Encoding multi-state UI flows with loosely related booleans instead of union types.
+- Relaxing TypeScript compiler options to silence errors rather than fixing root causes.
+- Mixing route-layer responsibilities with reusable component contracts in the same file.

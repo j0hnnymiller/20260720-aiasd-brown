@@ -2,25 +2,25 @@
 ai_generated: true
 model: "openai/gpt-5.3-codex@unknown"
 operator: "johnmillerATcodemag-com"
-chat_id: "tech-inventory-prompts-20260720"
+chat_id: "execute-create-next-start-instruction-file-20260721"
 prompt: |
   #file:create-next-start-instruction-file.prompt.md
-started: "2026-07-20T00:00:00Z"
-ended: "2026-07-20T00:00:00Z"
+started: "2026-07-21T00:00:00Z"
+ended: "2026-07-21T00:00:00Z"
 task_durations:
-  - task: "analyze repository scope and conventions"
+  - task: "review prompt and repository conventions"
     duration: "00:00:00"
-  - task: "create next-start instruction file"
+  - task: "author next-start instruction file"
     duration: "00:00:00"
 total_duration: "00:00:00"
-ai_log: "ai-logs/2026/07/20/tech-inventory-prompts-20260720/conversation.md"
+ai_log: "ai-logs/2026/07/21/execute-create-next-start-instruction-file-20260721/conversation.md"
 source: ".github/prompts/create-next-start-instruction-file.prompt.md"
 name: next-start
 description: Practical guidance for using next start in this codebase
 applyTo: "package.json|README.md"
 version: "1.0.0"
 author: "Development Team"
-tags: ["nextjs", "runtime", "operations"]
+tags: ["next-start", "nextjs", "operations"]
 owner: "Development Team"
 reviewedDate: "2026-07-21"
 nextReview: "2026-10-21"
@@ -30,45 +30,49 @@ nextReview: "2026-10-21"
 
 ## Overview
 
-Use `next start` only for serving a production build that was created by `next build` in the same project state.
+Use `next start` only to run a production build that was generated with `next build`. Keep scripts and docs aligned with the current Next.js App Router scope in this repository (`src/app/**`) and preserve TypeScript strict defaults.
 
-- Treat `next start` as a runtime command, not a development command.
-- Keep scripts and docs aligned so contributors run `npm run dev` for local iteration and `npm run build` + `npm run start` for production-like validation.
-- Keep guidance consistent with the current App Router + TypeScript strict setup in this repository.
+- Treat `next start` as production runtime behavior, not development workflow.
+- Keep `npm run dev` for local feature work and route iteration.
+- Ensure any runtime guidance in README matches package scripts exactly.
 
 ## Standards
 
-- Define `start` in `package.json` as `next start`.
-- Keep `build` and `start` paired: never document or automate `next start` without a preceding successful `next build`.
-- Keep runtime defaults explicit in documentation when needed (for example, default port behavior and how to override with `PORT`).
-- Avoid adding custom Node runtime wrappers unless there is a verified operational requirement.
-- Ensure README command examples match actual scripts in `package.json`.
+- Define runtime scripts in `package.json` using the explicit build/start sequence:
+  - `build`: `next build`
+  - `start`: `next start`
+- Do not document or add `next start` as a substitute for `next dev`.
+- Keep script names conventional (`dev`, `build`, `start`, `lint`) unless a verified project need requires additional scripts.
+- Document required production prerequisites in README:
+  - Build artifacts must exist before start.
+  - Runtime environment variables must be present.
+- Keep runtime examples compatible with current repository scope; do not reference Pages Router-only behavior.
 
 ## Patterns
 
 - Script pattern in `package.json`:
-  - `"build": "next build"`
-  - `"start": "next start"`
-- Validation workflow pattern:
-  - Install dependencies.
-  - Run `npm run build`.
-  - Run `npm run start`.
-  - Confirm the app serves the production build successfully.
-- Documentation pattern:
-  - Separate development and production commands clearly.
-  - Show production run steps in the same order they must be executed.
+  - `npm run build` compiles production assets.
+  - `npm run start` serves the production app.
+- Documentation pattern in README:
+  - Separate development commands from production commands.
+  - Show production as a two-step flow (`build` then `start`).
+- Verification pattern:
+  - Treat production smoke checks as route-level checks for App Router output.
+  - Keep examples and checks TypeScript-strict friendly by avoiding undocumented runtime assumptions.
 
 ## Validation Checklist
 
-- `package.json` contains a `start` script that uses `next start`.
-- `package.json` build/start scripts are compatible and unchanged by unrelated tooling.
-- README production instructions require `npm run build` before `npm run start`.
-- No documentation suggests using `next start` as a hot-reload development server.
-- Command examples are accurate for the current npm-based workflow.
+- `package.json` contains a `start` script that runs `next start`.
+- `package.json` contains a `build` script that runs `next build`.
+- README documents production startup as `npm run build` followed by `npm run start`.
+- README does not present `next start` as a development command.
+- Documentation remains aligned with App Router structure and current project scope.
+- No script or README guidance introduces behavior that conflicts with TypeScript strict project defaults.
 
 ## Common Pitfalls
 
-- Running `next start` without a fresh production build.
-- Treating `next start` as a replacement for `next dev` during feature work.
-- Letting README commands drift from `package.json` scripts.
-- Adding environment-specific launch flags to docs without confirming they are needed in this repo.
+- Running `next start` before creating a production build.
+- Mixing development and production instructions so users run the wrong command.
+- Documenting runtime behavior that assumes Pages Router conventions instead of App Router conventions.
+- Adding custom start flags or script indirection without a clear, validated need.
+- Letting README command examples drift from the real scripts in `package.json`.

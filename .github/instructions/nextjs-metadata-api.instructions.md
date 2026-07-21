@@ -2,22 +2,22 @@
 ai_generated: true
 model: "openai/gpt-5.3-codex@unknown"
 operator: "johnmillerATcodemag-com"
-chat_id: "tech-inventory-prompts-20260720"
+chat_id: "execute-create-nextjs-metadata-api-instruction-file-20260721"
 prompt: |
   #file:create-nextjs-metadata-api-instruction-file.prompt.md
-started: "2026-07-20T00:00:00Z"
-ended: "2026-07-20T00:00:00Z"
+started: "2026-07-21T00:00:00Z"
+ended: "2026-07-21T00:00:00Z"
 task_durations:
   - task: "analyze repository scope and conventions"
     duration: "00:00:00"
   - task: "create nextjs metadata api instruction file"
     duration: "00:00:00"
 total_duration: "00:00:00"
-ai_log: "ai-logs/2026/07/20/tech-inventory-prompts-20260720/conversation.md"
+ai_log: "ai-logs/2026/07/21/execute-create-nextjs-metadata-api-instruction-file-20260721/conversation.md"
 source: ".github/prompts/create-nextjs-metadata-api-instruction-file.prompt.md"
 name: nextjs-metadata-api
-description: Practical guidance for using Next.js metadata API in this codebase
-applyTo: "src/app/layout.tsx|src/app/**/*.tsx"
+description: practical guidance for using Next.js metadata API in this codebase
+applyTo: src/app/layout.tsx|src/app/**/*.tsx
 version: "1.0.0"
 author: "Development Team"
 tags: ["nextjs", "metadata", "app-router", "typescript"]
@@ -26,54 +26,67 @@ reviewedDate: "2026-07-21"
 nextReview: "2026-10-21"
 ---
 
-# Next.js Metadata API
+# Next.js metadata API
 
 ## Overview
 
-Use the Next.js metadata API to define document metadata in App Router files and keep metadata behavior predictable across routes.
+Use the Next.js metadata API as the single source of truth for document metadata in App Router routes. Keep baseline metadata in `src/app/layout.tsx`, and define route-specific metadata in `src/app/**/*.tsx` only when a route needs distinct title, description, or social tags.
 
-- Define site-wide defaults in `src/app/layout.tsx`.
-- Use route-level metadata only when a page or segment needs intentional overrides.
-- Keep metadata typed and explicit to align with TypeScript strictness.
-- Prefer built-in metadata fields instead of manual `<head>` tags for standard SEO and social metadata.
+- Prefer static `metadata` exports for stable values.
+- Use `generateMetadata` only when metadata depends on route params or server-side data.
+- Keep metadata server-side and framework-managed; avoid client-side `<head>` mutation patterns.
 
 ## Standards
 
-- Import `Metadata` from `next` and annotate exported metadata objects when practical.
-- Keep base metadata centralized in `src/app/layout.tsx` and avoid duplicating shared values in page files.
-- Use `metadataBase` in layout metadata when absolute URL resolution is required for canonical or Open Graph assets.
-- Prefer static `export const metadata` for values known at build time.
-- Use `generateMetadata` only when metadata depends on route params or server data.
-- Keep `title`, `description`, and Open Graph/Twitter metadata aligned to avoid conflicting previews.
-- Ensure image URLs and canonical URLs are valid and environment-safe.
+- Import and type metadata with `Metadata` from `next` when type safety is needed.
+- Export either `metadata` or `generateMetadata` from a route segment file, not both in conflicting ways.
+- Keep metadata declarations in Server Components; do not place metadata exports in Client Components.
+- Use absolute canonical URLs and Open Graph image URLs when setting URL fields.
+- Keep title/description concise, route-relevant, and aligned with visible page content.
+- Reuse shared metadata fragments through typed constants when duplication appears across routes.
+- Preserve TypeScript strictness: no `any`, no unsafe casts, and handle nullable values explicitly in `generateMetadata`.
 
 ## Patterns
 
-- Global defaults in layout:
-  - Define `title` with a template and default.
-  - Define `description`, `metadataBase`, and shared social fields.
-- Route overrides in page files:
-  - Export `metadata` for static page-specific title/description changes.
-  - Export `generateMetadata` for dynamic routes that derive metadata from params or fetched content.
-- Dynamic metadata safety:
-  - Handle missing data with deterministic fallback metadata.
-  - Avoid throwing in metadata generation for recoverable conditions.
-- URL consistency:
-  - Build canonical and image URLs relative to `metadataBase` when possible.
+### Root metadata in layout
+
+- Define app-wide defaults in `src/app/layout.tsx`.
+- Include baseline title template, description, and global social metadata used by most routes.
+- Keep defaults stable so route-level overrides remain minimal.
+
+### Route-level static metadata
+
+- In `src/app/**/*.tsx`, export `metadata` for pages with known static values.
+- Override only fields that differ from root defaults.
+- Keep per-route metadata close to the page to simplify maintenance.
+
+### Route-level dynamic metadata
+
+- Use `generateMetadata` when metadata depends on params, search params, or server-fetched content.
+- Validate/guard dynamic values before assignment to metadata fields.
+- Keep data fetching in `generateMetadata` small and purpose-specific to avoid unnecessary overhead.
+
+### Shared metadata helpers
+
+- Create typed helper functions/constants only when multiple routes share the same composition logic.
+- Keep helpers deterministic and side-effect free.
+- Avoid over-abstraction for one-off route metadata.
 
 ## Validation Checklist
 
-- Metadata defaults exist in `src/app/layout.tsx`.
-- Route-specific metadata changes are intentional and minimal.
-- Static metadata uses `metadata`; dynamic metadata uses `generateMetadata` only when needed.
-- TypeScript typing is preserved with no new unsafe casts.
-- Canonical/Open Graph/Twitter values are coherent and resolve correctly.
-- Metadata changes match current App Router structure and project scope.
+- Metadata changes are implemented via `metadata` or `generateMetadata`, not ad hoc `<head>` logic.
+- `src/app/layout.tsx` provides app-wide defaults, and route files override only what is needed.
+- Metadata exports remain in Server Component files.
+- Dynamic metadata handles missing/invalid data safely under TypeScript strict settings.
+- Canonical/Open Graph URL fields are absolute and consistent.
+- Titles and descriptions match the route content and intent.
+- Lint and type checks pass without introducing new suppressions.
 
 ## Common Pitfalls
 
-- Mixing manual `<head>` tags with metadata API for the same fields.
-- Duplicating global metadata values in multiple page files.
-- Using `generateMetadata` for static values that should be plain `metadata`.
-- Returning partial or inconsistent metadata between title, description, and social fields.
-- Emitting invalid URLs because `metadataBase` is missing or inconsistent.
+- Defining metadata inside Client Components or files marked with `"use client"`.
+- Fetching excessive data in `generateMetadata` instead of limiting to metadata needs.
+- Duplicating large metadata objects across routes without shared typed helpers.
+- Mixing manual `<head>` mutations with the metadata API.
+- Using relative URLs in fields that require absolute URLs.
+- Letting metadata drift from actual page content after UI updates.
