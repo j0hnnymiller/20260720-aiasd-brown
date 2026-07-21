@@ -2,8 +2,10 @@
 
 import { useEffect, useEffectEvent, useState } from "react";
 
+// Type definitions for calculator operators
 type Operator = "+" | "-" | "*" | "/";
 
+// Configuration for calculator buttons
 type ButtonConfig = {
   label: string;
   value: string;
@@ -11,11 +13,13 @@ type ButtonConfig = {
   wide?: boolean;
 };
 
+// Stores the last operation for repeat functionality
 type LastOperation = {
   operator: Operator;
   operand: number;
 };
 
+// Array of button configurations for the calculator UI
 const buttons: ButtonConfig[] = [
   { label: "Clear", value: "clear", variant: "action" },
   { label: "Toggle sign", value: "sign", variant: "action" },
