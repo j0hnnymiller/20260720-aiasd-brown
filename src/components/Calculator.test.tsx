@@ -131,4 +131,118 @@ describe("Calculator", () => {
     click("Subtract");
     expect(addButton.className).not.toContain("bg-amber-500");
   });
+
+  // HIGH PRIORITY: Core Logic Tests
+  it("chains multiple operations: 2 + 3 + 4 = 9", () => {
+    render(<Calculator />);
+
+    click("2");
+    click("Add");
+    click("3");
+    click("Add");
+    click("4");
+    click("Equals");
+
+    expectDisplay("9");
+  });
+
+  it("produces negative results: 3 - 5 = -2", () => {
+    render(<Calculator />);
+
+    click("3");
+    click("Subtract");
+    click("5");
+    click("Equals");
+
+    expectDisplay("-2");
+  });
+
+  it("handles floating-point precision: 0.1 + 0.2 = 0.3", () => {
+    render(<Calculator />);
+
+    press("0");
+    press(".");
+    press("1");
+    click("Add");
+    press("0");
+    press(".");
+    press("2");
+    click("Equals");
+
+    expectDisplay("0.3");
+  });
+
+  it("replaces operator mid-calculation", () => {
+    render(<Calculator />);
+
+    click("5");
+    click("Add");
+    const addButton = screen.getByRole("button", { name: "Add" });
+    expect(addButton.className).toContain("bg-amber-500");
+
+    click("Subtract");
+    const subtractButton = screen.getByRole("button", { name: "Subtract" });
+    expect(subtractButton.className).toContain("bg-amber-500");
+    expect(addButton.className).not.toContain("bg-amber-500");
+
+    click("3");
+    click("Equals");
+    expectDisplay("2");
+  });
+
+  it("ignores operator when in error state", () => {
+    render(<Calculator />);
+
+    click("8");
+    click("Divide");
+    click("0");
+    click("Equals");
+    expectDisplay("Error");
+
+    click("Add");
+    expectDisplay("Error");
+  });
+
+  it("clears error state when decimal is pressed", () => {
+    render(<Calculator />);
+
+    click("8");
+    click("Divide");
+    click("0");
+    click("Equals");
+    expectDisplay("Error");
+
+    press(".");
+    expectDisplay("0.");
+  });
+
+  it("handles chained subtraction with negatives", () => {
+    render(<Calculator />);
+
+    click("5");
+    click("Subtract");
+    click("1");
+    click("0");
+    click("Subtract");
+    click("3");
+    click("Equals");
+
+    expectDisplay("-8");
+  });
+
+  it("applies multiplication to negative numbers", () => {
+    render(<Calculator />);
+
+    click("3");
+    click("Subtract");
+    click("5");
+    click("Equals");
+    expectDisplay("-2");
+
+    click("Multiply");
+    click("4");
+    click("Equals");
+
+    expectDisplay("-8");
+  });
 });
