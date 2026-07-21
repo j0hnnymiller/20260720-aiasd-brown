@@ -1,36 +1,133 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# React Calculator (Next.js)
+
+A minimal, keyboard-friendly calculator built with Next.js App Router, React, TypeScript, and Tailwind CSS.
+
+## Tech Stack
+
+- Next.js 16.2.10
+- React 19.2.4
+- TypeScript 5 (strict)
+- Tailwind CSS 4
+- ESLint 9 with eslint-config-next
+- npm
+
+## Features
+
+- Four-function calculator: addition, subtraction, multiplication, division
+- Decimal input, sign toggle, percent conversion, and backspace editing
+- Repeated equals behavior for last-operation replay
+- Error handling for invalid operations like divide-by-zero
+- Input guardrails: 12-character display limit and compact formatting for large/small numbers
+- Keyboard support for numeric and operator input
+- Responsive, phone-style calculator UI with active-operator highlighting
 
 ## Getting Started
 
-First, run the development server:
+Install dependencies:
+
+```bash
+npm install
+```
+
+Run local development:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000 in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Production Commands
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Create a production build:
 
-## Learn More
+```bash
+npm run build
+```
 
-To learn more about Next.js, take a look at the following resources:
+Start the production server (after build):
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm run start
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Run lint checks:
 
-## Deploy on Vercel
+```bash
+npm run lint
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Test Automation
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This project uses Vitest with Testing Library for automated component tests.
+
+Run the full test suite once (CI mode):
+
+```bash
+npm run test
+```
+
+Run tests in watch mode during development:
+
+```bash
+npm run test:watch
+```
+
+Generate a coverage report:
+
+```bash
+npm run test:coverage
+```
+
+Coverage output is written to [coverage/](coverage/), including [coverage/index.html](coverage/index.html) for a browser report.
+
+Recommended CI validation order:
+
+```bash
+npm run lint
+npm run test
+npm run build
+```
+
+For PR quality gates, keep at least lint + test in automation, and add coverage checks when needed.
+
+## Keyboard Shortcuts
+
+- Digits: 0-9
+- Operators: +, -, \*, /
+- Decimal: . or ,
+- Equals: Enter or =
+- Percent: %
+- Clear: Escape
+- Delete last digit: Backspace
+
+## Calculator Behavior Notes
+
+- Display length is capped during manual entry (`MAX_INPUT_LENGTH = 12`).
+- Results are rounded/normalized for readability and may switch to precision or exponential notation for extreme values.
+- Pressing an operator repeatedly updates the pending operator without recomputing until the next operand is entered.
+- Pressing equals repeatedly replays the last completed operation.
+- In error state (`Error`), entering a digit or decimal starts a new value; backspace resets the calculator.
+
+## Project Structure
+
+- [src/app/layout.tsx](src/app/layout.tsx): Root layout, fonts, and metadata
+- [src/app/page.tsx](src/app/page.tsx): Landing page and calculator shell
+- [src/components/Calculator.tsx](src/components/Calculator.tsx): Calculator logic, state, keyboard handling, and UI
+- [src/app/globals.css](src/app/globals.css): Global Tailwind import and theme tokens
+- [package.json](package.json): Scripts and dependency versions
+
+## Notes
+
+- App metadata is defined in [src/app/layout.tsx](src/app/layout.tsx).
+- Geist and Geist Mono fonts are loaded via next/font/google.
+- Styling uses utility-first Tailwind classes plus a small global theme in [src/app/globals.css](src/app/globals.css).
+- Keyboard listeners are registered in [src/components/Calculator.tsx](src/components/Calculator.tsx) with React `useEffectEvent`.
+
+## Architecture
+
+- C4 diagrams are available in [docs/c4-architecture.md](docs/c4-architecture.md).
+
+## CI/CD
+
+- GitHub Pages deployment instructions are documented in [docs/developer-guide.md](docs/developer-guide.md) under "CI/CD: Deploy to GitHub Pages".
