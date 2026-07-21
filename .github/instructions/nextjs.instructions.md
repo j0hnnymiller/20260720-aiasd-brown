@@ -2,7 +2,7 @@
 ai_generated: true
 model: "openai/gpt-5.3-codex@unknown"
 operator: "johnmillerATcodemag-com"
-chat_id: "2468d8a5-5577-4747-9ad8-390912933424"
+chat_id: "tech-inventory-prompts-20260720"
 prompt: |
   #file:create-nextjs-instruction-file.prompt.md
 started: "2026-07-20T00:00:00Z"
@@ -13,7 +13,7 @@ task_durations:
   - task: "create nextjs instruction file"
     duration: "00:00:00"
 total_duration: "00:00:00"
-ai_log: "ai-logs/2026/07/20/2468d8a5-5577-4747-9ad8-390912933424/conversation.md"
+ai_log: "ai-logs/2026/07/20/tech-inventory-prompts-20260720/conversation.md"
 source: ".github/prompts/create-nextjs-instruction-file.prompt.md"
 name: nextjs
 description: Practical guidance for using Next.js 16.2.10 in this codebase
@@ -22,8 +22,8 @@ version: "1.0.0"
 author: "Development Team"
 tags: ["nextjs", "app-router", "typescript"]
 owner: "Development Team"
-reviewedDate: "2026-07-20"
-nextReview: "2026-10-20"
+reviewedDate: "2026-07-21"
+nextReview: "2026-10-21"
 ---
 
 # Next.js 16.2.10
