@@ -44,7 +44,7 @@ describe("POST /api/calculations", () => {
 
     await expect(
       access(path.join(tempDir, "logs", "calculations.log")),
-    ).rejects.toBeDefined();
+    ).rejects.toThrow();
   });
 
   it("returns 400 for invalid payload", async () => {
@@ -66,7 +66,7 @@ describe("POST /api/calculations", () => {
 
     await expect(
       access(path.join(tempDir, "logs", "calculations.log")),
-    ).rejects.toBeDefined();
+    ).rejects.toThrow();
   });
 
   it("appends log line when payload is valid and feature flag is enabled", async () => {

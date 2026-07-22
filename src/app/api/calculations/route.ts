@@ -52,8 +52,15 @@ export async function POST(request: Request) {
     result: payload.result,
   })}\n`;
 
-  await mkdir(LOG_DIR, { recursive: true });
-  await appendFile(LOG_FILE, line, "utf8");
+  try {
+    await mkdir(LOG_DIR, { recursive: true });
+    await appendFile(LOG_FILE, line, "utf8");
+  } catch {
+    return Response.json(
+      { error: "Failed to persist calculation log entry." },
+      { status: 500 },
+    );
+  }
 
   return new Response(null, { status: 204 });
 }
