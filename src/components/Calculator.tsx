@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useEffectEvent, useState } from "react";
+import { isEnabled } from "@/lib/featureFlags";
 
 // Type definitions for calculator operators
 type Operator = "+" | "-" | "*" | "/" | "^";
@@ -23,7 +24,7 @@ type ScientificOp =
 type ButtonConfig = {
   label: string;
   value: string;
-  variant?: "action" | "operator" | "number" | "scientific";
+  variant?: "action" | "operator" | "number" | "scientific" | "memory";
   wide?: boolean;
 };
 
@@ -33,8 +34,17 @@ type LastOperation = {
   operand: number;
 };
 
+// Memory button configurations
+const memoryButtons: ButtonConfig[] = [
+  { label: "Memory Clear", value: "mc", variant: "memory" },
+  { label: "Memory Recall", value: "mr", variant: "memory" },
+  { label: "Memory Add", value: "m+", variant: "memory" },
+  { label: "Memory Subtract", value: "m-", variant: "memory" },
+];
+
 // Array of button configurations for the calculator UI
 const buttons: ButtonConfig[] = [
+  ...(isEnabled("memoryFeature") ? memoryButtons : []),
   { label: "Sine", value: "sin", variant: "scientific" },
   { label: "Cosine", value: "cos", variant: "scientific" },
   { label: "Tangent", value: "tan", variant: "scientific" },
@@ -164,6 +174,7 @@ export default function Calculator() {
     null,
   );
   const [isError, setIsError] = useState(false);
+  const [memoryValue, setMemoryValue] = useState(0);
 
   function resetCalculator() {
     setDisplay("0");
@@ -371,6 +382,33 @@ export default function Calculator() {
     setDisplay(display.slice(0, -1));
   }
 
+  function handleMemoryClear() {
+    setMemoryValue(0);
+  }
+
+  function handleMemoryRecall() {
+    if (isError) {
+      setStoredValue(null);
+      setPendingOperator(null);
+      setLastOperation(null);
+      setIsError(false);
+    }
+    setDisplay(formatNumber(memoryValue));
+    setWaitingForOperand(false);
+  }
+
+  function handleMemoryAdd() {
+    if (isError) return;
+    setMemoryValue(memoryValue + getCurrentValue());
+    setWaitingForOperand(true);
+  }
+
+  function handleMemorySubtract() {
+    if (isError) return;
+    setMemoryValue(memoryValue - getCurrentValue());
+    setWaitingForOperand(true);
+  }
+
   function handleScientific(operation: ScientificOp) {
     if (isError) {
       return;
@@ -417,6 +455,18 @@ export default function Calculator() {
         break;
       case "backspace":
         handleBackspace();
+        break;
+      case "mc":
+        handleMemoryClear();
+        break;
+      case "mr":
+        handleMemoryRecall();
+        break;
+      case "m+":
+        handleMemoryAdd();
+        break;
+      case "m-":
+        handleMemorySubtract();
         break;
       case "sqrt":
       case "square":
@@ -497,6 +547,7 @@ export default function Calculator() {
           const isAction = button.variant === "action";
           const isScientific = button.variant === "scientific";
           const isPercentButton = button.value === "percent";
+          const isMemory = button.variant === "memory";
           const isActiveOperator =
             isOperator && pendingOperator === button.value;
 
@@ -519,7 +570,9 @@ export default function Calculator() {
                       : "bg-slate-200 text-slate-900 hover:bg-slate-300 focus-visible:ring-slate-400"
                     : isScientific
                       ? "bg-purple-500 text-white hover:bg-purple-600 focus-visible:ring-purple-300"
-                      : "bg-slate-100 text-slate-950 hover:bg-slate-200 focus-visible:ring-slate-300",
+                      : isMemory
+                        ? "bg-teal-500 text-white hover:bg-teal-600 focus-visible:ring-teal-300"
+                        : "bg-slate-100 text-slate-950 hover:bg-slate-200 focus-visible:ring-slate-300",
               ].join(" ")}
             >
               {button.value === "*"
@@ -556,7 +609,15 @@ export default function Calculator() {
                                               ? "π"
                                               : button.value === "e"
                                                 ? "e"
-                                                : button.value}
+                                                : button.value === "mc"
+                                                  ? "MC"
+                                                  : button.value === "mr"
+                                                    ? "MR"
+                                                    : button.value === "m+"
+                                                      ? "M+"
+                                                      : button.value === "m-"
+                                                        ? "M-"
+                                                        : button.value}
             </button>
           );
         })}

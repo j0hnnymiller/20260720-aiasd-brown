@@ -55,9 +55,9 @@ describe("GitHub Pages Deployment Smoke Tests", () => {
 
     it("should have operation buttons", () => {
       render(<Home />);
-      expect(screen.getByRole("button", { name: /Add/i })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Add" })).toBeInTheDocument();
       expect(
-        screen.getByRole("button", { name: /Subtract/i }),
+        screen.getByRole("button", { name: "Subtract" }),
       ).toBeInTheDocument();
       expect(
         screen.getByRole("button", { name: /Multiply/i }),
@@ -72,7 +72,7 @@ describe("GitHub Pages Deployment Smoke Tests", () => {
 
       // Click: 5 + 3 =
       fireEvent.click(screen.getByRole("button", { name: "5" }));
-      fireEvent.click(screen.getByRole("button", { name: /Add/i }));
+      fireEvent.click(screen.getByRole("button", { name: "Add" }));
       fireEvent.click(screen.getByRole("button", { name: "3" }));
       fireEvent.click(screen.getByRole("button", { name: /Equals/i }));
 

@@ -393,4 +393,104 @@ describe("Calculator", () => {
       expectDisplay("Error");
     });
   });
+
+  describe("Memory Feature", () => {
+    it("stores value in memory with M+", () => {
+      render(<Calculator />);
+
+      click("5");
+      click("Memory Add");
+      click("Memory Recall");
+
+      expectDisplay("5");
+    });
+
+    it("recalls memory value after calculator reset with MR", () => {
+      render(<Calculator />);
+
+      click("7");
+      click("Memory Add");
+      click("Clear");
+      click("Memory Recall");
+
+      expectDisplay("7");
+    });
+
+    it("clears memory to 0 with MC", () => {
+      render(<Calculator />);
+
+      click("5");
+      click("Memory Add");
+      click("Memory Clear");
+      click("Memory Recall");
+
+      expectDisplay("0");
+    });
+
+    it("subtracts from memory with M-", () => {
+      render(<Calculator />);
+
+      click("1");
+      click("0");
+      click("Memory Add");
+
+      click("3");
+      click("Memory Subtract");
+      click("Memory Recall");
+
+      expectDisplay("7");
+    });
+
+    it("accumulates memory with repeated M+", () => {
+      render(<Calculator />);
+
+      click("3");
+      click("Memory Add");
+      click("Memory Add");
+      click("Memory Recall");
+
+      expectDisplay("6");
+    });
+
+    it("memory persists across calculator reset", () => {
+      render(<Calculator />);
+
+      click("8");
+      click("Memory Add");
+      click("Clear");
+      click("Memory Recall");
+
+      expectDisplay("8");
+    });
+
+    it("recalled memory value can be used as an operand", () => {
+      render(<Calculator />);
+
+      click("5");
+      click("Memory Add");
+      click("Clear");
+      click("3");
+      click("Add");
+      click("Memory Recall");
+      click("Equals");
+
+      expectDisplay("8");
+    });
+
+    it("MR clears error state", () => {
+      render(<Calculator />);
+
+      click("9");
+      click("Memory Add");
+      click("8");
+      click("Divide");
+      click("0");
+      click("Equals");
+      expectDisplay("Error");
+
+      click("Memory Recall");
+
+      expectDisplay("9");
+    });
+  });
 });
