@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useEffectEvent, useState } from "react";
+import { useCallback, useEffect, useEffectEvent, useState } from "react";
 import { isEnabled } from "@/lib/featureFlags";
 
 // Type definitions for calculator operators
@@ -208,7 +208,7 @@ export default function Calculator() {
   const [isError, setIsError] = useState(false);
   const [memoryValue, setMemoryValue] = useState(0);
 
-  function logCalculation(entry: CalculationLogEntry) {
+  const logCalculation = useCallback((entry: CalculationLogEntry) => {
     if (!isEnabled("calculationLoggingFeature")) {
       return;
     }
@@ -220,7 +220,7 @@ export default function Calculator() {
     }).catch(() => {
       // Intentionally ignored to keep calculator UX uninterrupted.
     });
-  }
+  }, []);
 
   function resetCalculator() {
     setDisplay("0");

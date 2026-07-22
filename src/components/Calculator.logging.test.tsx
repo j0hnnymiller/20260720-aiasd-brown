@@ -1,11 +1,24 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-async function renderCalculatorWithLogging(enabled: boolean) {
+async function renderCalculatorWithFlags({
+  calculationLoggingEnabled,
+  memoryEnabled,
+}: {
+  calculationLoggingEnabled: boolean;
+  memoryEnabled: boolean;
+}) {
   vi.resetModules();
   vi.doMock("@/lib/featureFlags", () => ({
-    isEnabled: (flag: string) =>
-      flag === "memoryFeature" || (flag === "calculationLoggingFeature" && enabled),
+    isEnabled: (flag: string) => {
+      if (flag === "memoryFeature") {
+        return memoryEnabled;
+      }
+      if (flag === "calculationLoggingFeature") {
+        return calculationLoggingEnabled;
+      }
+      return false;
+    },
   }));
 
   const { default: Calculator } = await import("@/components/Calculator");
@@ -29,7 +42,10 @@ describe("Calculator logging feature flag", () => {
       .mockResolvedValue(new Response(null, { status: 204 }));
     vi.stubGlobal("fetch", fetchMock);
 
-    await renderCalculatorWithLogging(true);
+    await renderCalculatorWithFlags({
+      calculationLoggingEnabled: true,
+      memoryEnabled: true,
+    });
 
     click("2");
     click("Add");
@@ -56,7 +72,10 @@ describe("Calculator logging feature flag", () => {
       .mockResolvedValue(new Response(null, { status: 204 }));
     vi.stubGlobal("fetch", fetchMock);
 
-    await renderCalculatorWithLogging(false);
+    await renderCalculatorWithFlags({
+      calculationLoggingEnabled: false,
+      memoryEnabled: true,
+    });
 
     click("2");
     click("Add");

@@ -9,11 +9,21 @@ type CalculationLogPayload = {
 
 const MAX_EXPRESSION_LENGTH = 200;
 const MAX_RESULT_LENGTH = 100;
-const LOG_DIR = path.join(process.cwd(), "logs");
-const LOG_FILE = process.env.CALCULATION_LOG_FILE
-  ? path.resolve(process.env.CALCULATION_LOG_FILE)
-  : path.join(LOG_DIR, "calculations.log");
-const RESOLVED_LOG_DIR = path.dirname(LOG_FILE);
+const APP_ROOT = process.cwd();
+const DEFAULT_LOG_FILE = path.join(APP_ROOT, "logs", "calculations.log");
+
+function resolveLogFilePath() {
+  const configuredPath = process.env.CALCULATION_LOG_FILE;
+  if (!configuredPath) {
+    return DEFAULT_LOG_FILE;
+  }
+
+  const resolvedPath = path.resolve(APP_ROOT, configuredPath);
+  const isWithinAppRoot =
+    resolvedPath === APP_ROOT || resolvedPath.startsWith(`${APP_ROOT}${path.sep}`);
+
+  return isWithinAppRoot ? resolvedPath : DEFAULT_LOG_FILE;
+}
 
 function isValidPayload(payload: unknown): payload is CalculationLogPayload {
   if (!payload || typeof payload !== "object") {
@@ -56,12 +66,14 @@ export async function POST(request: Request) {
     expression: payload.expression,
     result: payload.result,
   })}\n`;
+  const logFile = resolveLogFilePath();
+  const logDir = path.dirname(logFile);
 
   try {
-    await mkdir(RESOLVED_LOG_DIR, { recursive: true });
-    await appendFile(LOG_FILE, line, "utf8");
+    await mkdir(logDir, { recursive: true });
+    await appendFile(logFile, line, "utf8");
   } catch (error) {
-    console.error("Failed to write calculation log entry.", error);
+    console.error("Failed to write calculation log entry.", { logFile, error });
     return Response.json(
       { error: "Failed to persist calculation log entry." },
       { status: 500 },

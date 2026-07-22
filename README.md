@@ -115,7 +115,7 @@ For PR quality gates, keep at least lint + test in automation, and add coverage 
 - JSON flags are configured in [src/config/flags.json](src/config/flags.json).
 - Set `calculationLoggingFeature` to `true` to send calculation entries to the logging API route.
 - Calculation logs are appended to `logs/calculations.log` by default.
-- Set `CALCULATION_LOG_FILE` to override the output file path. Relative paths resolve from the app working directory.
+- Set `CALCULATION_LOG_FILE` to override the output file path. Relative paths resolve from the project root (`process.cwd()`, where `package.json` is located).
 
 ## Project Structure
 
