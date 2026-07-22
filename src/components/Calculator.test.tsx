@@ -245,4 +245,152 @@ describe("Calculator", () => {
 
     expectDisplay("-8");
   });
+
+  // SCIENTIFIC FEATURES
+  describe("Scientific Functions", () => {
+    it("calculates square root: √16 = 4", () => {
+      render(<Calculator />);
+
+      click("1");
+      click("6");
+      click("Square Root");
+
+      expectDisplay("4");
+    });
+
+    it("calculates square: 5² = 25", () => {
+      render(<Calculator />);
+
+      click("5");
+      click("Square");
+
+      expectDisplay("25");
+    });
+
+    it("calculates reciprocal: 1/5 = 0.2", () => {
+      render(<Calculator />);
+
+      click("5");
+      click("Reciprocal");
+
+      expectDisplay("0.2");
+    });
+
+    it("calculates sine in degrees: sin(90°) = 1", () => {
+      render(<Calculator />);
+
+      click("9");
+      click("0");
+      click("Sine");
+
+      expectDisplay("1");
+    });
+
+    it("calculates cosine in degrees: cos(0°) = 1", () => {
+      render(<Calculator />);
+
+      click("0");
+      click("Cosine");
+
+      expectDisplay("1");
+    });
+
+    it("calculates tangent in degrees: tan(45°) ≈ 1", () => {
+      render(<Calculator />);
+
+      click("4");
+      click("5");
+      click("Tangent");
+
+      expectDisplay("1");
+    });
+
+    it("calculates natural logarithm: ln(1) = 0", () => {
+      render(<Calculator />);
+
+      click("1");
+      click("Natural Log");
+
+      expectDisplay("0");
+    });
+
+    it("calculates base-10 logarithm: log(100) = 2", () => {
+      render(<Calculator />);
+
+      click("1");
+      click("0");
+      click("0");
+      click("Log10");
+
+      expectDisplay("2");
+    });
+
+    it("inputs π constant", () => {
+      render(<Calculator />);
+
+      click("Pi");
+
+      expect(getDisplay().textContent).toMatch(/^3\.14/);
+    });
+
+    it("inputs e constant", () => {
+      render(<Calculator />);
+
+      click("Euler");
+
+      expect(getDisplay().textContent).toMatch(/^2\.71/);
+    });
+
+    it("calculates factorial: 5! = 120", () => {
+      render(<Calculator />);
+
+      click("5");
+      click("Factorial");
+
+      expectDisplay("120");
+    });
+
+    it("chains scientific with basic operations: √16 + 9 = 13", () => {
+      render(<Calculator />);
+
+      click("1");
+      click("6");
+      click("Square Root");
+      click("Add");
+      click("9");
+      click("Equals");
+
+      expectDisplay("13");
+    });
+
+    it("calculates power: 2^3 = 8", () => {
+      render(<Calculator />);
+
+      click("2");
+      click("Power");
+      click("3");
+      click("Equals");
+
+      expectDisplay("8");
+    });
+
+    it("returns error for square root of negative", () => {
+      render(<Calculator />);
+
+      click("5");
+      click("Toggle sign");
+      click("Square Root");
+
+      expectDisplay("Error");
+    });
+
+    it("returns error for log of zero", () => {
+      render(<Calculator />);
+
+      click("0");
+      click("Natural Log");
+
+      expectDisplay("Error");
+    });
+  });
 });

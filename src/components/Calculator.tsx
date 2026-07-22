@@ -3,13 +3,27 @@
 import { useEffect, useEffectEvent, useState } from "react";
 
 // Type definitions for calculator operators
-type Operator = "+" | "-" | "*" | "/";
+type Operator = "+" | "-" | "*" | "/" | "^";
+
+// Scientific operations that work on a single value
+type ScientificOp =
+  | "sqrt"
+  | "square"
+  | "reciprocal"
+  | "sin"
+  | "cos"
+  | "tan"
+  | "ln"
+  | "log10"
+  | "factorial"
+  | "pi"
+  | "e";
 
 // Configuration for calculator buttons
 type ButtonConfig = {
   label: string;
   value: string;
-  variant?: "action" | "operator" | "number";
+  variant?: "action" | "operator" | "number" | "scientific";
   wide?: boolean;
 };
 
@@ -21,6 +35,18 @@ type LastOperation = {
 
 // Array of button configurations for the calculator UI
 const buttons: ButtonConfig[] = [
+  { label: "Sine", value: "sin", variant: "scientific" },
+  { label: "Cosine", value: "cos", variant: "scientific" },
+  { label: "Tangent", value: "tan", variant: "scientific" },
+  { label: "Factorial", value: "factorial", variant: "scientific" },
+  { label: "Natural Log", value: "ln", variant: "scientific" },
+  { label: "Log10", value: "log10", variant: "scientific" },
+  { label: "Pi", value: "pi", variant: "scientific" },
+  { label: "Euler", value: "e", variant: "scientific" },
+  { label: "Square Root", value: "sqrt", variant: "scientific" },
+  { label: "Square", value: "square", variant: "scientific" },
+  { label: "Reciprocal", value: "reciprocal", variant: "scientific" },
+  { label: "Power", value: "^", variant: "operator" },
   { label: "Clear", value: "clear", variant: "action" },
   { label: "Toggle sign", value: "sign", variant: "action" },
   { label: "Percent", value: "percent", variant: "action" },
@@ -75,6 +101,57 @@ function compute(left: number, right: number, operator: Operator) {
       return left * right;
     case "/":
       return right === 0 ? Number.NaN : left / right;
+    case "^":
+      return computePower(left, right);
+  }
+}
+
+function computePower(base: number, exponent: number) {
+  return Math.pow(base, exponent);
+}
+
+function computeScientific(value: number, operation: ScientificOp): number {
+  switch (operation) {
+    case "sqrt":
+      return value < 0 ? Number.NaN : Math.sqrt(value);
+    case "square":
+      return value * value;
+    case "reciprocal":
+      return value === 0 ? Number.NaN : 1 / value;
+    case "sin":
+      // Convert degrees to radians
+      return Math.sin((value * Math.PI) / 180);
+    case "cos":
+      // Convert degrees to radians
+      return Math.cos((value * Math.PI) / 180);
+    case "tan":
+      // Convert degrees to radians
+      return Math.tan((value * Math.PI) / 180);
+    case "ln":
+      return value <= 0 ? Number.NaN : Math.log(value);
+    case "log10":
+      return value <= 0 ? Number.NaN : Math.log10(value);
+    case "factorial": {
+      if (value < 0 || !Number.isInteger(value)) {
+        return Number.NaN;
+      }
+      if (value === 0 || value === 1) {
+        return 1;
+      }
+      if (value > 170) {
+        // Factorial beyond 170 causes overflow
+        return Number.POSITIVE_INFINITY;
+      }
+      let result = 1;
+      for (let i = 2; i <= value; i++) {
+        result *= i;
+      }
+      return result;
+    }
+    case "pi":
+      return Math.PI;
+    case "e":
+      return Math.E;
   }
 }
 
@@ -294,6 +371,21 @@ export default function Calculator() {
     setDisplay(display.slice(0, -1));
   }
 
+  function handleScientific(operation: ScientificOp) {
+    if (isError) {
+      return;
+    }
+
+    const currentValue = getCurrentValue();
+    const result = computeScientific(currentValue, operation);
+
+    if (!updateDisplay(result)) {
+      return;
+    }
+
+    setWaitingForOperand(true);
+  }
+
   function handleInput(value: string) {
     if (/^\d$/.test(value)) {
       inputDigit(value);
@@ -308,7 +400,8 @@ export default function Calculator() {
       case "-":
       case "*":
       case "/":
-        handleOperator(value);
+      case "^":
+        handleOperator(value as Operator);
         break;
       case "=":
         handleEquals();
@@ -324,6 +417,19 @@ export default function Calculator() {
         break;
       case "backspace":
         handleBackspace();
+        break;
+      case "sqrt":
+      case "square":
+      case "reciprocal":
+      case "sin":
+      case "cos":
+      case "tan":
+      case "ln":
+      case "log10":
+      case "factorial":
+      case "pi":
+      case "e":
+        handleScientific(value as ScientificOp);
         break;
     }
   }
@@ -354,6 +460,7 @@ export default function Calculator() {
       "-": "-",
       "+": "+",
       "%": "percent",
+      "^": "^",
     };
 
     const action = mappedKey[event.key];
@@ -373,7 +480,7 @@ export default function Calculator() {
     <section className="w-full max-w-sm rounded-[2rem] border border-black/10 bg-white/90 p-4 shadow-[0_24px_80px_rgba(15,23,42,0.18)] backdrop-blur">
       <div className="mb-4 rounded-[1.5rem] bg-slate-950 px-5 py-6 text-right text-white shadow-inner">
         <p className="text-xs font-medium uppercase tracking-[0.3em] text-slate-400">
-          Simple Calculator
+          Scientific Calculator
         </p>
         <output
           aria-live="polite"
@@ -388,6 +495,7 @@ export default function Calculator() {
         {buttons.map((button) => {
           const isOperator = button.variant === "operator";
           const isAction = button.variant === "action";
+          const isScientific = button.variant === "scientific";
           const isPercentButton = button.value === "percent";
           const isActiveOperator =
             isOperator && pendingOperator === button.value;
@@ -399,7 +507,7 @@ export default function Calculator() {
               aria-label={button.label}
               onClick={() => handleInput(button.value)}
               className={[
-                "h-16 rounded-2xl text-xl font-semibold transition-transform duration-150 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+                "h-14 rounded-xl text-lg font-semibold transition-transform duration-150 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
                 button.wide ? "col-span-2" : "col-span-1",
                 isOperator
                   ? isActiveOperator
@@ -409,20 +517,46 @@ export default function Calculator() {
                     ? isPercentButton
                       ? "bg-red-500 text-white hover:bg-red-600 focus-visible:ring-red-300"
                       : "bg-slate-200 text-slate-900 hover:bg-slate-300 focus-visible:ring-slate-400"
-                    : "bg-slate-100 text-slate-950 hover:bg-slate-200 focus-visible:ring-slate-300",
+                    : isScientific
+                      ? "bg-purple-500 text-white hover:bg-purple-600 focus-visible:ring-purple-300"
+                      : "bg-slate-100 text-slate-950 hover:bg-slate-200 focus-visible:ring-slate-300",
               ].join(" ")}
             >
               {button.value === "*"
                 ? "×"
                 : button.value === "/"
                   ? "÷"
-                  : button.value === "sign"
-                    ? "±"
-                    : button.value === "percent"
-                      ? "%"
-                      : button.value === "clear"
-                        ? "C"
-                        : button.value}
+                  : button.value === "^"
+                    ? "^"
+                    : button.value === "sign"
+                      ? "±"
+                      : button.value === "percent"
+                        ? "%"
+                        : button.value === "clear"
+                          ? "C"
+                          : button.value === "sqrt"
+                            ? "√"
+                            : button.value === "square"
+                              ? "x²"
+                              : button.value === "reciprocal"
+                                ? "1/x"
+                                : button.value === "sin"
+                                  ? "sin"
+                                  : button.value === "cos"
+                                    ? "cos"
+                                    : button.value === "tan"
+                                      ? "tan"
+                                      : button.value === "ln"
+                                        ? "ln"
+                                        : button.value === "log10"
+                                          ? "log"
+                                          : button.value === "factorial"
+                                            ? "n!"
+                                            : button.value === "pi"
+                                              ? "π"
+                                              : button.value === "e"
+                                                ? "e"
+                                                : button.value}
             </button>
           );
         })}
