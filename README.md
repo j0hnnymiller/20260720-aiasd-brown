@@ -110,6 +110,13 @@ For PR quality gates, keep at least lint + test in automation, and add coverage 
 - Pressing equals repeatedly replays the last completed operation.
 - In error state (`Error`), entering a digit or decimal starts a new value; backspace resets the calculator.
 
+## Feature Flags and Logging
+
+- JSON flags are configured in [src/config/flags.json](src/config/flags.json).
+- Set `calculationLoggingFeature` to `true` to send calculation entries to the logging API route.
+- Calculation logs are appended to `logs/calculations.log` by default.
+- Set `CALCULATION_LOG_FILE` to override the output file path. Relative paths resolve from the app working directory.
+
 ## Project Structure
 
 - [src/app/layout.tsx](src/app/layout.tsx): Root layout, fonts, and metadata

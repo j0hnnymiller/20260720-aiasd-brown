@@ -7,6 +7,8 @@ type CalculationLogPayload = {
   result: string;
 };
 
+const MAX_EXPRESSION_LENGTH = 200;
+const MAX_RESULT_LENGTH = 100;
 const LOG_DIR = path.join(process.cwd(), "logs");
 const LOG_FILE = process.env.CALCULATION_LOG_FILE
   ? path.resolve(process.env.CALCULATION_LOG_FILE)
@@ -23,10 +25,10 @@ function isValidPayload(payload: unknown): payload is CalculationLogPayload {
   return (
     typeof expression === "string" &&
     expression.trim().length > 0 &&
-    expression.length <= 200 &&
+    expression.length <= MAX_EXPRESSION_LENGTH &&
     typeof result === "string" &&
     result.trim().length > 0 &&
-    result.length <= 100
+    result.length <= MAX_RESULT_LENGTH
   );
 }
 
