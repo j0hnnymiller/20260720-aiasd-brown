@@ -1,26 +1,32 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { access, mkdtemp, readFile, rm } from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const appendFileMock = vi.fn();
-const mkdirMock = vi.fn();
+let calculationLoggingEnabled = false;
+let tempDir = "";
+let cwdSpy: ReturnType<typeof vi.spyOn>;
 
-vi.mock("node:fs/promises", () => ({
-  appendFile: appendFileMock,
-  mkdir: mkdirMock,
+vi.mock("@/lib/featureFlags", () => ({
+  isEnabled: (flag: string) =>
+    flag === "calculationLoggingFeature" && calculationLoggingEnabled,
 }));
 
 async function loadRouteWithFlag(enabled: boolean) {
+  calculationLoggingEnabled = enabled;
   vi.resetModules();
-  vi.doMock("@/lib/featureFlags", () => ({
-    isEnabled: (flag: string) => flag === "calculationLoggingFeature" && enabled,
-  }));
-
   return import("./route");
 }
 
 describe("POST /api/calculations", () => {
-  beforeEach(() => {
-    appendFileMock.mockReset();
-    mkdirMock.mockReset();
+  beforeEach(async () => {
+    tempDir = await mkdtemp(path.join(os.tmpdir(), "calc-log-test-"));
+    cwdSpy = vi.spyOn(process, "cwd").mockReturnValue(tempDir);
+  });
+
+  afterEach(async () => {
+    cwdSpy.mockRestore();
+    await rm(tempDir, { recursive: true, force: true });
   });
 
   it("returns 204 and skips file writes when logging flag is disabled", async () => {
@@ -35,8 +41,10 @@ describe("POST /api/calculations", () => {
     const response = await POST(request);
 
     expect(response.status).toBe(204);
-    expect(mkdirMock).not.toHaveBeenCalled();
-    expect(appendFileMock).not.toHaveBeenCalled();
+
+    await expect(
+      access(path.join(tempDir, "logs", "calculations.log")),
+    ).rejects.toBeDefined();
   });
 
   it("returns 400 for invalid payload", async () => {
@@ -55,8 +63,10 @@ describe("POST /api/calculations", () => {
     expect(body).toEqual({
       error: "Invalid payload. Expected non-empty expression and result.",
     });
-    expect(mkdirMock).not.toHaveBeenCalled();
-    expect(appendFileMock).not.toHaveBeenCalled();
+
+    await expect(
+      access(path.join(tempDir, "logs", "calculations.log")),
+    ).rejects.toBeDefined();
   });
 
   it("appends log line when payload is valid and feature flag is enabled", async () => {
@@ -69,20 +79,13 @@ describe("POST /api/calculations", () => {
     });
 
     const response = await POST(request);
+    const logContent = await readFile(
+      path.join(tempDir, "logs", "calculations.log"),
+      "utf8",
+    );
 
     expect(response.status).toBe(204);
-    expect(mkdirMock).toHaveBeenCalledWith(expect.stringContaining("logs"), {
-      recursive: true,
-    });
-    expect(appendFileMock).toHaveBeenCalledWith(
-      expect.stringContaining("logs/calculations.log"),
-      expect.stringContaining('"expression":"4 * 5"'),
-      "utf8",
-    );
-    expect(appendFileMock).toHaveBeenCalledWith(
-      expect.stringContaining("logs/calculations.log"),
-      expect.stringContaining('"result":"20"'),
-      "utf8",
-    );
+    expect(logContent).toContain('"expression":"4 * 5"');
+    expect(logContent).toContain('"result":"20"');
   });
 });
