@@ -20,6 +20,7 @@ A minimal, keyboard-friendly calculator built with Next.js App Router, React, Ty
 - Input guardrails: 12-character display limit and compact formatting for large/small numbers
 - Keyboard support for numeric and operator input
 - Responsive, phone-style calculator UI with active-operator highlighting
+- Optional calculation logging to `logs/calculations.log` behind a JSON feature flag
 
 ## Getting Started
 
@@ -114,6 +115,8 @@ For PR quality gates, keep at least lint + test in automation, and add coverage 
 - [src/app/layout.tsx](src/app/layout.tsx): Root layout, fonts, and metadata
 - [src/app/page.tsx](src/app/page.tsx): Landing page and calculator shell
 - [src/components/Calculator.tsx](src/components/Calculator.tsx): Calculator logic, state, keyboard handling, and UI
+- [src/app/api/calculations/route.ts](src/app/api/calculations/route.ts): Calculation log API route
+- [src/config/flags.json](src/config/flags.json): JSON feature flags, including calculation logging toggle
 - [src/app/globals.css](src/app/globals.css): Global Tailwind import and theme tokens
 - [package.json](package.json): Scripts and dependency versions
 

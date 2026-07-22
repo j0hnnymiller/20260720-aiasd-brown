@@ -18,6 +18,7 @@ A client-side, keyboard-friendly calculator component that supports:
 - Repeated equals behavior (replays last operation)
 - Error state handling (for example, divide by zero)
 - Active-operator visual state in the keypad
+- Optional server-side calculation logging controlled by `src/config/flags.json` (`calculationLoggingFeature`)
 
 ## Usage
 
