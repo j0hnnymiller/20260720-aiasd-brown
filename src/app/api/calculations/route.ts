@@ -8,7 +8,10 @@ type CalculationLogPayload = {
 };
 
 const LOG_DIR = path.join(process.cwd(), "logs");
-const LOG_FILE = path.join(LOG_DIR, "calculations.log");
+const LOG_FILE = process.env.CALCULATION_LOG_FILE
+  ? path.resolve(process.env.CALCULATION_LOG_FILE)
+  : path.join(LOG_DIR, "calculations.log");
+const RESOLVED_LOG_DIR = path.dirname(LOG_FILE);
 
 function isValidPayload(payload: unknown): payload is CalculationLogPayload {
   if (!payload || typeof payload !== "object") {
@@ -53,9 +56,10 @@ export async function POST(request: Request) {
   })}\n`;
 
   try {
-    await mkdir(LOG_DIR, { recursive: true });
+    await mkdir(RESOLVED_LOG_DIR, { recursive: true });
     await appendFile(LOG_FILE, line, "utf8");
-  } catch {
+  } catch (error) {
+    console.error("Failed to write calculation log entry.", error);
     return Response.json(
       { error: "Failed to persist calculation log entry." },
       { status: 500 },

@@ -170,7 +170,7 @@ function computeScientific(value: number, operation: ScientificOp): number {
   }
 }
 
-function scientificExpression(value: number, operation: ScientificOp): string {
+function formatScientificExpression(value: number, operation: ScientificOp): string {
   switch (operation) {
     case "sqrt":
       return `sqrt(${value})`;
@@ -471,7 +471,7 @@ export default function Calculator() {
     const currentValue = getCurrentValue();
     const result = computeScientific(currentValue, operation);
     const formattedResult = formatNumber(result);
-    const expression = scientificExpression(currentValue, operation);
+    const expression = formatScientificExpression(currentValue, operation);
 
     logCalculation({ expression, result: formattedResult });
 
