@@ -12,6 +12,11 @@ const MAX_RESULT_LENGTH = 100;
 const APP_ROOT = process.cwd();
 const DEFAULT_LOG_FILE = path.join(APP_ROOT, "logs", "calculations.log");
 
+function normalizePathForComparison(inputPath: string) {
+  const normalized = path.normalize(inputPath);
+  return process.platform === "win32" ? normalized.toLowerCase() : normalized;
+}
+
 function resolveLogFilePath() {
   const configuredPath = process.env.CALCULATION_LOG_FILE;
   if (!configuredPath) {
@@ -19,8 +24,11 @@ function resolveLogFilePath() {
   }
 
   const resolvedPath = path.resolve(APP_ROOT, configuredPath);
+  const normalizedRoot = normalizePathForComparison(APP_ROOT);
+  const normalizedResolved = normalizePathForComparison(resolvedPath);
   const isWithinAppRoot =
-    resolvedPath === APP_ROOT || resolvedPath.startsWith(`${APP_ROOT}${path.sep}`);
+    normalizedResolved === normalizedRoot ||
+    normalizedResolved.startsWith(`${normalizedRoot}${path.sep}`);
 
   return isWithinAppRoot ? resolvedPath : DEFAULT_LOG_FILE;
 }
@@ -73,7 +81,10 @@ export async function POST(request: Request) {
     await mkdir(logDir, { recursive: true });
     await appendFile(logFile, line, "utf8");
   } catch (error) {
-    console.error("Failed to write calculation log entry.", { logFile, error });
+    console.error("Failed to write calculation log entry.", {
+      file: path.basename(logFile),
+      error,
+    });
     return Response.json(
       { error: "Failed to persist calculation log entry." },
       { status: 500 },

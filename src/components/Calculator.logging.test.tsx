@@ -62,8 +62,14 @@ describe("Calculator logging feature flag", () => {
       method: "POST",
       headers: { "Content-Type": "application/json" },
     });
-    expect(String(options?.body)).toContain('"expression":"2 + 3"');
-    expect(String(options?.body)).toContain('"result":"5"');
+    const body = JSON.parse(String(options?.body)) as {
+      expression: string;
+      result: string;
+    };
+    expect(body).toMatchObject({
+      expression: "2 + 3",
+      result: "5",
+    });
   });
 
   it("does not post calculation logs when feature flag is disabled", async () => {
@@ -87,5 +93,26 @@ describe("Calculator logging feature flag", () => {
     });
 
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("keeps calculator behavior intact when logging request fails", async () => {
+    const fetchMock = vi.fn().mockRejectedValue(new Error("network failure"));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await renderCalculatorWithFlags({
+      calculationLoggingEnabled: true,
+      memoryEnabled: true,
+    });
+
+    click("2");
+    click("Add");
+    click("3");
+    click("Equals");
+
+    await waitFor(() => {
+      expect(document.querySelector("output")).toHaveTextContent("5");
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });
