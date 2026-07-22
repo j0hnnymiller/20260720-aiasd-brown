@@ -20,6 +20,7 @@ A minimal, keyboard-friendly calculator built with Next.js App Router, React, Ty
 - Input guardrails: 12-character display limit and compact formatting for large/small numbers
 - Keyboard support for numeric and operator input
 - Responsive, phone-style calculator UI with active-operator highlighting
+- Optional calculation logging to `logs/calculations.log` behind a JSON feature flag
 
 ## Getting Started
 
@@ -109,11 +110,20 @@ For PR quality gates, keep at least lint + test in automation, and add coverage 
 - Pressing equals repeatedly replays the last completed operation.
 - In error state (`Error`), entering a digit or decimal starts a new value; backspace resets the calculator.
 
+## Feature Flags and Logging
+
+- JSON flags are configured in [src/config/flags.json](src/config/flags.json).
+- Set `calculationLoggingFeature` to `true` to send calculation entries to the logging API route.
+- Calculation logs are appended to `logs/calculations.log` by default.
+- Set `CALCULATION_LOG_FILE` to override the output file path. Relative paths resolve from the project root (`process.cwd()`, where `package.json` is located).
+
 ## Project Structure
 
 - [src/app/layout.tsx](src/app/layout.tsx): Root layout, fonts, and metadata
 - [src/app/page.tsx](src/app/page.tsx): Landing page and calculator shell
 - [src/components/Calculator.tsx](src/components/Calculator.tsx): Calculator logic, state, keyboard handling, and UI
+- [src/app/api/calculations/route.ts](src/app/api/calculations/route.ts): Calculation log API route
+- [src/config/flags.json](src/config/flags.json): JSON feature flags, including calculation logging toggle
 - [src/app/globals.css](src/app/globals.css): Global Tailwind import and theme tokens
 - [package.json](package.json): Scripts and dependency versions
 

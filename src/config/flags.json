@@ -1,3 +1,4 @@
 {
-  "memoryFeature": true
+  "memoryFeature": true,
+  "calculationLoggingFeature": false
 }

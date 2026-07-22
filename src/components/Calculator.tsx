@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useEffectEvent, useState } from "react";
+import { useCallback, useEffect, useEffectEvent, useState } from "react";
 import { isEnabled } from "@/lib/featureFlags";
 
 // Type definitions for calculator operators
@@ -32,6 +32,11 @@ type ButtonConfig = {
 type LastOperation = {
   operator: Operator;
   operand: number;
+};
+
+type CalculationLogEntry = {
+  expression: string;
+  result: string;
 };
 
 // Memory button configurations
@@ -165,6 +170,33 @@ function computeScientific(value: number, operation: ScientificOp): number {
   }
 }
 
+function formatScientificExpression(value: number, operation: ScientificOp): string {
+  switch (operation) {
+    case "sqrt":
+      return `sqrt(${value})`;
+    case "square":
+      return `square(${value})`;
+    case "reciprocal":
+      return `reciprocal(${value})`;
+    case "sin":
+      return `sin(${value})`;
+    case "cos":
+      return `cos(${value})`;
+    case "tan":
+      return `tan(${value})`;
+    case "ln":
+      return `ln(${value})`;
+    case "log10":
+      return `log10(${value})`;
+    case "factorial":
+      return `factorial(${value})`;
+    case "pi":
+      return "pi";
+    case "e":
+      return "e";
+  }
+}
+
 export default function Calculator() {
   const [display, setDisplay] = useState("0");
   const [storedValue, setStoredValue] = useState<number | null>(null);
@@ -175,6 +207,20 @@ export default function Calculator() {
   );
   const [isError, setIsError] = useState(false);
   const [memoryValue, setMemoryValue] = useState(0);
+
+  const logCalculation = useCallback((entry: CalculationLogEntry) => {
+    if (!isEnabled("calculationLoggingFeature")) {
+      return;
+    }
+
+    void fetch("/api/calculations", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(entry),
+    }).catch(() => {
+      // Intentionally ignored to keep calculator UX uninterrupted.
+    });
+  }, []);
 
   function resetCalculator() {
     setDisplay("0");
@@ -307,6 +353,10 @@ export default function Calculator() {
     if (pendingOperator && storedValue !== null) {
       const operand = waitingForOperand ? storedValue : inputValue;
       const result = compute(storedValue, operand, pendingOperator);
+      const formattedResult = formatNumber(result);
+      const expression = `${storedValue} ${pendingOperator} ${operand}`;
+
+      logCalculation({ expression, result: formattedResult });
 
       if (!updateDisplay(result)) {
         return;
@@ -325,6 +375,10 @@ export default function Calculator() {
         lastOperation.operand,
         lastOperation.operator,
       );
+      const formattedResult = formatNumber(result);
+      const expression = `${inputValue} ${lastOperation.operator} ${lastOperation.operand}`;
+
+      logCalculation({ expression, result: formattedResult });
 
       if (!updateDisplay(result)) {
         return;
@@ -416,6 +470,10 @@ export default function Calculator() {
 
     const currentValue = getCurrentValue();
     const result = computeScientific(currentValue, operation);
+    const formattedResult = formatNumber(result);
+    const expression = formatScientificExpression(currentValue, operation);
+
+    logCalculation({ expression, result: formattedResult });
 
     if (!updateDisplay(result)) {
       return;
