@@ -108,6 +108,26 @@ describe("Calculator", () => {
     expectDisplay("0");
   });
 
+  it("ignores calculator keyboard shortcuts while typing in an input", () => {
+    render(<Calculator />);
+
+    const input = document.createElement("input");
+    document.body.appendChild(input);
+    input.focus();
+
+    const event = new KeyboardEvent("keydown", {
+      key: "1",
+      cancelable: true,
+    });
+
+    window.dispatchEvent(event);
+
+    expect(event.defaultPrevented).toBe(false);
+    expectDisplay("0");
+
+    input.remove();
+  });
+
   it("enforces manual input max length", () => {
     render(<Calculator />);
 

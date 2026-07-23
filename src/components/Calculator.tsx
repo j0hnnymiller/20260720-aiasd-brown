@@ -543,6 +543,16 @@ export default function Calculator() {
   }
 
   const onKeyDown = useEffectEvent((event: KeyboardEvent) => {
+    const activeElement = document.activeElement;
+    const isTextEntryContext =
+      activeElement instanceof HTMLInputElement ||
+      activeElement instanceof HTMLTextAreaElement ||
+      (activeElement instanceof HTMLElement && activeElement.isContentEditable);
+
+    if (isTextEntryContext) {
+      return;
+    }
+
     if (
       (event.ctrlKey || event.metaKey) &&
       ["c", "v", "x", "a"].includes(event.key.toLowerCase())
