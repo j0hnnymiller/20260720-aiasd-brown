@@ -24,6 +24,7 @@ type ScientificOp =
 type ButtonConfig = {
   label: string;
   value: string;
+  display?: string;
   variant?: "action" | "operator" | "number" | "scientific" | "memory";
   wide?: boolean;
 };
@@ -41,10 +42,10 @@ type CalculationLogEntry = {
 
 // Memory button configurations
 const memoryButtons: ButtonConfig[] = [
-  { label: "Memory Clear", value: "mc", variant: "memory" },
-  { label: "Memory Recall", value: "mr", variant: "memory" },
-  { label: "Memory Add", value: "m+", variant: "memory" },
-  { label: "Memory Subtract", value: "m-", variant: "memory" },
+  { label: "Memory Clear", value: "mc", display: "MC", variant: "memory" },
+  { label: "Memory Recall", value: "mr", display: "MR", variant: "memory" },
+  { label: "Memory Add", value: "m+", display: "M+", variant: "memory" },
+  { label: "Memory Subtract", value: "m-", display: "M-", variant: "memory" },
 ];
 
 // Array of button configurations for the calculator UI
@@ -53,23 +54,33 @@ const buttons: ButtonConfig[] = [
   { label: "Sine", value: "sin", variant: "scientific" },
   { label: "Cosine", value: "cos", variant: "scientific" },
   { label: "Tangent", value: "tan", variant: "scientific" },
-  { label: "Factorial", value: "factorial", variant: "scientific" },
+  {
+    label: "Factorial",
+    value: "factorial",
+    display: "n!",
+    variant: "scientific",
+  },
   { label: "Natural Log", value: "ln", variant: "scientific" },
-  { label: "Log10", value: "log10", variant: "scientific" },
-  { label: "Pi", value: "pi", variant: "scientific" },
+  { label: "Log10", value: "log10", display: "log", variant: "scientific" },
+  { label: "Pi", value: "pi", display: "π", variant: "scientific" },
   { label: "Euler", value: "e", variant: "scientific" },
-  { label: "Square Root", value: "sqrt", variant: "scientific" },
-  { label: "Square", value: "square", variant: "scientific" },
-  { label: "Reciprocal", value: "reciprocal", variant: "scientific" },
+  { label: "Square Root", value: "sqrt", display: "√", variant: "scientific" },
+  { label: "Square", value: "square", display: "x²", variant: "scientific" },
+  {
+    label: "Reciprocal",
+    value: "reciprocal",
+    display: "1/x",
+    variant: "scientific",
+  },
   { label: "Power", value: "^", variant: "operator" },
-  { label: "Clear", value: "clear", variant: "action" },
-  { label: "Toggle sign", value: "sign", variant: "action" },
-  { label: "Percent", value: "percent", variant: "action" },
-  { label: "Divide", value: "/", variant: "operator" },
+  { label: "Clear", value: "clear", display: "C", variant: "action" },
+  { label: "Toggle sign", value: "sign", display: "±", variant: "action" },
+  { label: "Percent", value: "percent", display: "%", variant: "action" },
+  { label: "Divide", value: "/", display: "÷", variant: "operator" },
   { label: "7", value: "7" },
   { label: "8", value: "8" },
   { label: "9", value: "9" },
-  { label: "Multiply", value: "*", variant: "operator" },
+  { label: "Multiply", value: "*", display: "×", variant: "operator" },
   { label: "4", value: "4" },
   { label: "5", value: "5" },
   { label: "6", value: "6" },
@@ -170,7 +181,10 @@ function computeScientific(value: number, operation: ScientificOp): number {
   }
 }
 
-function formatScientificExpression(value: number, operation: ScientificOp): string {
+function formatScientificExpression(
+  value: number,
+  operation: ScientificOp,
+): string {
   switch (operation) {
     case "sqrt":
       return `sqrt(${value})`;
@@ -633,49 +647,7 @@ export default function Calculator() {
                         : "bg-slate-100 text-slate-950 hover:bg-slate-200 focus-visible:ring-slate-300",
               ].join(" ")}
             >
-              {button.value === "*"
-                ? "×"
-                : button.value === "/"
-                  ? "÷"
-                  : button.value === "^"
-                    ? "^"
-                    : button.value === "sign"
-                      ? "±"
-                      : button.value === "percent"
-                        ? "%"
-                        : button.value === "clear"
-                          ? "C"
-                          : button.value === "sqrt"
-                            ? "√"
-                            : button.value === "square"
-                              ? "x²"
-                              : button.value === "reciprocal"
-                                ? "1/x"
-                                : button.value === "sin"
-                                  ? "sin"
-                                  : button.value === "cos"
-                                    ? "cos"
-                                    : button.value === "tan"
-                                      ? "tan"
-                                      : button.value === "ln"
-                                        ? "ln"
-                                        : button.value === "log10"
-                                          ? "log"
-                                          : button.value === "factorial"
-                                            ? "n!"
-                                            : button.value === "pi"
-                                              ? "π"
-                                              : button.value === "e"
-                                                ? "e"
-                                                : button.value === "mc"
-                                                  ? "MC"
-                                                  : button.value === "mr"
-                                                    ? "MR"
-                                                    : button.value === "m+"
-                                                      ? "M+"
-                                                      : button.value === "m-"
-                                                        ? "M-"
-                                                        : button.value}
+              {button.display ?? button.value}
             </button>
           );
         })}
